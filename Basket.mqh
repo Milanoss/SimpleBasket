@@ -280,7 +280,6 @@ private:
       firstTime=true;
       writer.openFile(basketName, timeframe);
       writer.writeHeader(basketName, timeframe);
-      countWeight();
      }
    //+------------------------------------------------------------------+
    //|                                                                  |
@@ -327,6 +326,7 @@ public:
            {
             return;
            }
+         countWeight();
          writeCurrentBars();
          firstTime=false;
         }
