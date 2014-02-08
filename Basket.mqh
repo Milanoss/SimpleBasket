@@ -49,7 +49,6 @@ private:
         {
          ResetLastError();
          weights[i]=MarketInfo(pairs[i],MODE_TICKVALUE)*lotSize/MarketInfo(pairs[i],MODE_TICKSIZE);
-         Print("Count W ",GetLastError());
         }
      }
 
@@ -335,7 +334,8 @@ public:
         {
          MqlRates          bar;
          datetime newTime=iTime(pairs[0],timeframe,0);
-         if(writer.getLastBarTime()!=newTime)
+         datetime oldTime=writer.getLastBarTime();
+         if(oldTime!=newTime)
            {
             // new bar
             writer.writeBar(countBar(bar,1));

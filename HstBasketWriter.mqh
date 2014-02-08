@@ -59,6 +59,7 @@ public:
       FileSeek(file,tmpPosition,SEEK_SET);
       FileWriteStruct(file,m_bar);
       tmpPosition=FileTell(file);
+      lastTime=m_bar.time;
      }
 
    //+------------------------------------------------------------------+

@@ -1,10 +1,19 @@
 //+------------------------------------------------------------------+
 //|                                                     SimpleBasket |
 //|                                         Copyright 2014, Milanoss |
-//|              http://www.forexfactory.com/showthread.php?t=391229 |
+//|                         https://github.com/Milanoss/SimpleBasket |
 //+------------------------------------------------------------------+
 #property copyright "Milanoss"
-#property link      "http://www.forexfactory.com/showthread.php?t=391229"
+#property link      "https://github.com/Milanoss/SimpleBasket"
+#property description "Installation:"
+#property description "1. Open any chart"
+#property description "2. Double click on indicator and click OK"
+#property description "3. If you haven't history dowloaded wait until 'Loading history data ...' message disappear"
+#property description "4. Close chart"
+#property description "5. Open OFFLINE chart"
+#property description "6. Double click on indicator and enter same configuration!"
+#property description "7. Save graph as template"
+#property description "8. Enjoy... ;)"
 #property version   "1.00"
 #property strict
 #property indicator_chart_window
