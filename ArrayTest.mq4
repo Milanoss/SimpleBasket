@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                                                  XoPanelTest.mq4 |
+//|                                                    ArrayTest.mq4 |
 //|                                                         Milanoss |
 //|                         https://github.com/Milanoss/SimpleBasket |
 //+------------------------------------------------------------------+
@@ -8,29 +8,16 @@
 #property version   "1.00"
 #property strict
 #property indicator_chart_window
-
-#include "XoPanel.mqh"
-
-XoPanel  *panel;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
 int OnInit()
   {
-   string  pairs="USDJPY:100,EURUSD:5000";
-   panel=new XoPanel();
-
-   if(!panel.Create(pairs,20,20,10,5))
-      return INIT_FAILED;
-
-   return INIT_SUCCEEDED;
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void OnDeinit(const int reason)
-  {
-   delete(panel);
+//--- indicator buffers mapping
+   int a[2][3] = {1,2,3,4,5,6};
+   ArrayResize(a[0],9);
+//---
+   return(INIT_SUCCEEDED);
   }
 //+------------------------------------------------------------------+
 //| Custom indicator iteration function                              |
@@ -46,10 +33,9 @@ int OnCalculate(const int rates_total,
                 const long &volume[],
                 const int &spread[])
   {
-   if(panel!=NULL)
-     {
-      panel.updateValues();
-     }
+//---
+   
+//--- return value of prev_calculated for next call
    return(rates_total);
   }
 //+------------------------------------------------------------------+
@@ -60,6 +46,7 @@ void OnChartEvent(const int id,
                   const double &dparam,
                   const string &sparam)
   {
-//panel.OnEvent(id,lparam,dparam,sparam);
+//---
+   
   }
 //+------------------------------------------------------------------+

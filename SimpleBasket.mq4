@@ -40,16 +40,24 @@ input int timeframe        = BASKET_TIMEFRAME;
 #include "Basket.mqh"
 #include "HstBasketWriter.mqh"
 #include "CsvBasketWriter.mqh"
+#include "XoPanel.mqh"
 
-Basket *b;
+Basket   *basket;
+XoPanel  *panel;
 //+------------------------------------------------------------------+
 //| Create basket and timer                                          |
 //+------------------------------------------------------------------+
-void OnInit()
+int OnInit()
   {
-   b=new Basket(new HstBasketWriter(),basketSizeOrSymbols,basketLotSize,basketMaxBars,basketName,timeframe);
+   basket=new Basket(new HstBasketWriter(),basketSizeOrSymbols,basketLotSize,basketMaxBars,basketName,timeframe);
+   panel=new XoPanel();
+
+   if(!panel.Create("USDJPY:100,EURUSD:5000",20,20,10,5))
+      return INIT_FAILED;
 
    EventSetTimer(TIMER_INTERVAL);
+
+   return INIT_SUCCEEDED;
   }
 //+------------------------------------------------------------------+
 //| Kill timer and destroy basket                                    |
@@ -58,15 +66,15 @@ void OnDeinit(const int reason)
   {
    EventKillTimer();
 
-   delete(b);
+   delete(basket);
+   delete(panel);
   }
 //+------------------------------------------------------------------+
 //| It is called by timer, basket is updated                         |
 //+------------------------------------------------------------------+
 void OnTimer()
   {
-   b.updateLastBar();
-   WindowRedraw();
+   basket.updateLastBar();
   }
 //+------------------------------------------------------------------+
 //| Nothing to count, it is event for new tick                      |
@@ -82,6 +90,7 @@ int OnCalculate(const int rates_total,
                 const long &volume[],
                 const int &spread[])
   {
-   return(0);
+   panel.updateValues();
+   return(rates_total);
   }
 //+------------------------------------------------------------------+
