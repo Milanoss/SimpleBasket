@@ -15,14 +15,17 @@ XoPanel  *panel;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
-int OnInit()
+void OnInit()
   {
-//--- indicator buffers mapping
-   string  pairs[]={"USDJPY","EURUSD"};
-   panel=new XoPanel(pairs,20,20,12);
-
-//---
-   return(INIT_SUCCEEDED);
+   string  pairs="USDJPY:100,EURUSD:5000";
+   panel=new XoPanel(pairs,20,20,10);
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+  {
+   delete(panel);
   }
 //+------------------------------------------------------------------+
 //| Custom indicator iteration function                              |
@@ -38,9 +41,10 @@ int OnCalculate(const int rates_total,
                 const long &volume[],
                 const int &spread[])
   {
-//---
-
-//--- return value of prev_calculated for next call
+   if(panel!=NULL)
+     {
+      panel.updateValues();
+     }
    return(rates_total);
   }
 //+------------------------------------------------------------------+
@@ -51,6 +55,6 @@ void OnChartEvent(const int id,
                   const double &dparam,
                   const string &sparam)
   {
-//---
+
   }
 //+------------------------------------------------------------------+
