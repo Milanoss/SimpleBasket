@@ -70,7 +70,7 @@ void Basket::Basket(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSize
    this.basketName=m_basketName;
    this.timeframe=m_timeframe;
    int size=StrToInteger(m_pairsOrSize);
-   if(ERR_INVALID_FUNCTION_PARAMVALUE==GetLastError())
+   if(size==0)
      {
       setPairs(m_pairsOrSize);
      }
@@ -184,22 +184,22 @@ void              Basket::writeCurrentBars()
 //+------------------------------------------------------------------+
 void               Basket::setPairs(string pairsStr)
   {
-   int i=0;
-   int pos=0;
-   int suffixLen=StringLen(getPairSuffix());
-   while(true)
+   string pairsSplit[];
+   StringSplit(pairsStr,',',pairsSplit);
+
+   int size=ArraySize(pairsSplit);
+
+   ArrayResize(pairs,size);
+   ArrayResize(weights,size);
+
+   for(int i=0;i<size;i++)
      {
-      ArrayResize(pairs,i+1);
-      ArrayResize(weights,i+1);
-      pairs[i]=StringSubstr(pairsStr,pos,6+suffixLen);
-      if(!symbolExists(pairs[i]))
+      if(!symbolExists(pairsSplit[i]))
         {
          Alert("Symbol ",pairs[i]," does not exist!");
          return;
         }
-      pos+=7+suffixLen;
-      i++;
-      if(pos>=StringLen(pairsStr)) break;
+      pairs[i]=pairsSplit[i];
      }
   }
 //+------------------------------------------------------------------+
@@ -314,6 +314,7 @@ void              Basket::setPairs(int m_basketSize)
 //+------------------------------------------------------------------+
 bool Basket::symbolExists(string symbol)
   {
+   ResetLastError();
    MarketInfo(symbol,MODE_DIGITS);
    return ERR_UNKNOWN_SYMBOL!=GetLastError();
   }
