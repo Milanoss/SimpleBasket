@@ -130,7 +130,6 @@ void              Basket::updateLastBar()
       writer.closeFile();
      }
 
-   Print("Writer size: ",writer.counterValue());
    notifyWindow();
   }
 //+------------------------------------------------------------------+
