@@ -20,29 +20,32 @@
 
 // Default values - if you need change something, it should be in #defines here
 #define BASKET_SIZE      14
-#define BASKET_BOX_SIZE  350
 #define BASKET_LOT_SIZE  0.01
 #define BASKET_INIT_BARS 1000
 #define BASKET_MAX_BARS  1100
 #define BASKET_NAME      "Basket"
 #define BASKET_TIMEFRAME 240
 
+#define XO_BOX_SIZE      350
+#define XO_BARS_COUNT      5
+
 #define TIMER_INTERVAL   2
 
 // Do not touch rest of code please. If you need change, contact developers of these scripts please
 
 // Configurable values
+input string basketName    = BASKET_NAME;
+input int    basketInitBars= BASKET_INIT_BARS;
+input int    basketMaxBars = BASKET_MAX_BARS;
 input string ________="Basket size '14' or list of symbols 'EURUSD,GBPJPY'";
 input string basketSizeOrSymbols=(string)BASKET_SIZE;
 input string _________     = "BoxSize for XO indicator";
 input string __________    = "Value: '10' - all pairs have same boxSize";
 input string ___________   = "Value: '10,20' - two pairs with different boxSize";
-input string basketBoxSize = (string)BASKET_BOX_SIZE;
-input double basketLotSize = BASKET_LOT_SIZE;
-input int    basketInitBars= BASKET_INIT_BARS;
-input int    basketMaxBars = BASKET_MAX_BARS;
-input string basketName    = BASKET_NAME;
-input int    timeframe     = BASKET_TIMEFRAME;
+input string xoBoxSize=(string)XO_BOX_SIZE;
+input int    xoBarsCount=XO_BARS_COUNT;
+input int    timeframe=BASKET_TIMEFRAME;
+input double lotSize=BASKET_LOT_SIZE;
 
 #include "Basket.mqh"
 #include "HstBasketWriter.mqh"
@@ -56,12 +59,12 @@ XoPanel  *panel;
 //+------------------------------------------------------------------+
 int OnInit()
   {
-   basket=new Basket(new HstBasketWriter(),basketSizeOrSymbols,basketLotSize,basketInitBars,basketMaxBars,basketName,timeframe);
+   basket=new Basket(new HstBasketWriter(),basketSizeOrSymbols,lotSize,basketInitBars,basketMaxBars,basketName,timeframe);
    if(!basket.Create())
       return INIT_FAILED;
 
    panel=new XoPanel();
-   if(!panel.Create(basket.getPairs(),basketBoxSize,20,30,10,5))
+   if(!panel.Create(basket.getPairs(),xoBoxSize,20,30,10,xoBarsCount))
       return INIT_FAILED;
 
    EventSetTimer(TIMER_INTERVAL);
