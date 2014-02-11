@@ -56,9 +56,14 @@ int OnInit()
   {
    basket=new Basket(new HstBasketWriter(),basketSizeOrSymbols,basketLotSize,basketMaxBars,basketName,timeframe);
    panel=new XoPanel();
+   panel.CleanOldObjects();
+   panel.CleanOldObjects();
+   panel.CleanOldObjects();
+   panel.CleanOldObjects();
+   panel.CleanOldObjects();
 
-   if(!panel.Create(basket.getPairs(),basketBoxSize,20,20,10,5))
-      return INIT_FAILED;
+   //if(!panel.Create(basket.getPairs(),basketBoxSize,20,20,10,5))
+    //  return INIT_FAILED;
 
    EventSetTimer(TIMER_INTERVAL);
 
@@ -72,7 +77,7 @@ void OnDeinit(const int reason)
    EventKillTimer();
 
    delete(basket);
-   delete(panel);
+   panel.Destroy(reason);
   }
 //+------------------------------------------------------------------+
 //| It is called by timer, basket is updated                         |
