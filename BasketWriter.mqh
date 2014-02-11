@@ -17,6 +17,7 @@ protected:
    datetime          lastTime;
    int               file;
    ulong             tmpPosition;
+   int               counter;
 
 public:
                      BasketWriter(){}
@@ -35,7 +36,11 @@ public:
    //+------------------------------------------------------------------+
    //| Writes bar into file and sets temporary position                 |
    //+------------------------------------------------------------------+
-   virtual void      writeBar(MqlRates &m_bar){}
+   void      writeBar(MqlRates &m_bar)
+     {
+      writeBarConcrete(m_bar);
+      incrementCounter();
+     }
 
    //+------------------------------------------------------------------+
    //| Writes bar into file but to temporary position                   |
@@ -51,7 +56,7 @@ public:
      }
 
    //+------------------------------------------------------------------+
-   //| Close file                                               |
+   //| Close file                                                       |
    //+------------------------------------------------------------------+
    void      closeFile()
      {
@@ -60,6 +65,36 @@ public:
          FileClose(file);
          file=-1;
         }
+     }
+
+   //+------------------------------------------------------------------+
+   //| Returns number of written bars                                   |
+   //+------------------------------------------------------------------+
+   int counterValue()
+     {
+      return counter;
+     }
+
+   //+------------------------------------------------------------------+
+   //| Reset counter of bars                                            |
+   //+------------------------------------------------------------------+
+   void resetCounter()
+     {
+      counter=0;
+     }
+
+protected:
+   //+------------------------------------------------------------------+
+   //| Writes bar into file and sets temporary position                 |
+   //+------------------------------------------------------------------+
+   virtual void      writeBarConcrete(MqlRates &m_bar){}
+
+   //+------------------------------------------------------------------+
+   //| Increment counter of bars                                        |
+   //+------------------------------------------------------------------+
+   void incrementCounter()
+     {
+      counter++;
      }
 
   };

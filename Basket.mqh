@@ -21,6 +21,8 @@ private:
    string            pairs[];
    double            lotSize;
    int               maxBars;
+   int               initBars;
+   int               counter;
    string            basketName;
    int               timeframe;
    int               file;
@@ -46,14 +48,14 @@ private:
    void              writeCurrentBars();
    //--- Returns true if history for all pairs is loaded
    bool              isHistoryLoaded();
-   //--- Init basket - open file, write header into file and write and write all possible bars from all pairs  
-   void              init();
 
 public:
    //--- Create basket 
-   void              Basket(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSize=0.01,int m_maxBars=1000,string m_basketName="Basket",int m_timeframe=240);
+   void              Basket(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSize=0.01,int m_initBars=1000,int m_maxBars=1100,string m_basketName="Basket",int m_timeframe=240);
    //--- Destroy basket
    void             ~Basket();
+   //--- Init basket - open file, write header into file and write and write all possible bars from all pairs  
+   bool              Create();
    //--- Called by timer to update last bar of graph. If new bar is added it is written and also new temporary bar is written
    void              updateLastBar();
    //--- Gets pairs as string "GBPJPY,EURUSD" 
@@ -62,13 +64,15 @@ public:
 //+------------------------------------------------------------------+
 //| Create basket                                                    |
 //+------------------------------------------------------------------+
-void Basket::Basket(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSize=0.01,int m_maxBars=1000,string m_basketName="Basket",int m_timeframe=240)
+void Basket::Basket(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSize=0.01,int m_initBars=1000,int m_maxBars=1100,string m_basketName="Basket",int m_timeframe=240)
   {
-   this.writer = m_writer;
-   this.lotSize=m_lotSize;
-   this.maxBars= m_maxBars;
-   this.basketName=m_basketName;
-   this.timeframe=m_timeframe;
+   this.writer     = m_writer;
+   this.lotSize    = m_lotSize;
+   this.maxBars    = m_maxBars;
+   this.initBars   = m_initBars;
+   this.basketName = m_basketName;
+   this.timeframe  = m_timeframe;
+   this.counter    = 0;
    int size=StrToInteger(m_pairsOrSize);
    if(size==0)
      {
@@ -78,7 +82,6 @@ void Basket::Basket(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSize
      {
       setPairs(size);
      }
-   init();
   }
 //+------------------------------------------------------------------+
 //| Destroy basket                                                   |
@@ -100,6 +103,11 @@ void              Basket::updateLastBar()
          return;
         }
       countWeight();
+
+      writer.openFile(basketName,timeframe);
+      writer.writeHeader(basketName,timeframe);
+      writer.resetCounter();
+
       writeCurrentBars();
       firstTime=false;
      }
@@ -114,8 +122,15 @@ void              Basket::updateLastBar()
          writer.writeBar(countBar(bar,1));
         }
       writer.writeTempBar(countBar(bar,0));
-
      }
+
+   if(writer.counterValue()>maxBars)
+     {
+      firstTime=true;
+      writer.closeFile();
+     }
+
+   Print("Writer size: ",writer.counterValue());
    notifyWindow();
   }
 //+------------------------------------------------------------------+
@@ -155,16 +170,15 @@ bool Basket::isHistoryLoaded()
 //| Init basket - open file, write header into file and write        |
 //| and write all possible bars from all pairs                       |
 //+------------------------------------------------------------------+
-void  Basket::init()
+bool  Basket::Create()
   {
    if(!IsDllsAllowed())
      {
       Alert("Enable DLLs first!");
-      return;
+      return false;
      }
    firstTime=true;
-   writer.openFile(basketName, timeframe);
-   writer.writeHeader(basketName, timeframe);
+   return true;
   }
 //+------------------------------------------------------------------+
 //| Writes all current bars into file                                |
@@ -172,8 +186,7 @@ void  Basket::init()
 void              Basket::writeCurrentBars()
   {
    MqlRates          bar;
-
-   for(int i=maxBars;i>0;i--)
+   for(int i=initBars;i>0;i--)
      {
       writer.writeBar(countBar(bar,i));
      }

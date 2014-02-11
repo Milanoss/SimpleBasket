@@ -45,7 +45,7 @@ public:
    //+------------------------------------------------------------------+
    //| Writes bar into file and sets temporary position                 |
    //+------------------------------------------------------------------+
-   void      writeBar(MqlRates &m_bar)
+   void      writeBarConcrete(MqlRates &m_bar)
      {
       FileSeek(file,tmpPosition,SEEK_SET);
       FileWrite(file,TimeToStr(m_bar.time,TIME_DATE),TimeToStr(m_bar.time,TIME_MINUTES),(int)m_bar.open,m_bar.high,m_bar.low,m_bar.close,m_bar.tick_volume);

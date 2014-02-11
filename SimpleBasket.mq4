@@ -22,7 +22,8 @@
 #define BASKET_SIZE      14
 #define BASKET_BOX_SIZE  350
 #define BASKET_LOT_SIZE  0.01
-#define BASKET_MAX_BARS  1000
+#define BASKET_INIT_BARS 1000
+#define BASKET_MAX_BARS  1100
 #define BASKET_NAME      "Basket"
 #define BASKET_TIMEFRAME 240
 
@@ -38,9 +39,10 @@ input string __________    = "Value: '10' - all pairs have same boxSize";
 input string ___________   = "Value: '10,20' - two pairs with different boxSize";
 input string basketBoxSize = (string)BASKET_BOX_SIZE;
 input double basketLotSize = BASKET_LOT_SIZE;
-input int basketMaxBars    = BASKET_MAX_BARS;
+input int    basketInitBars= BASKET_INIT_BARS;
+input int    basketMaxBars = BASKET_MAX_BARS;
 input string basketName    = BASKET_NAME;
-input int timeframe        = BASKET_TIMEFRAME;
+input int    timeframe     = BASKET_TIMEFRAME;
 
 #include "Basket.mqh"
 #include "HstBasketWriter.mqh"
@@ -54,16 +56,13 @@ XoPanel  *panel;
 //+------------------------------------------------------------------+
 int OnInit()
   {
-   basket=new Basket(new HstBasketWriter(),basketSizeOrSymbols,basketLotSize,basketMaxBars,basketName,timeframe);
-   panel=new XoPanel();
-   panel.CleanOldObjects();
-   panel.CleanOldObjects();
-   panel.CleanOldObjects();
-   panel.CleanOldObjects();
-   panel.CleanOldObjects();
+   basket=new Basket(new HstBasketWriter(),basketSizeOrSymbols,basketLotSize,basketInitBars,basketMaxBars,basketName,timeframe);
+   if(!basket.Create())
+      return INIT_FAILED;
 
-   //if(!panel.Create(basket.getPairs(),basketBoxSize,20,20,10,5))
-    //  return INIT_FAILED;
+   panel=new XoPanel();
+   if(!panel.Create(basket.getPairs(),basketBoxSize,20,30,10,5))
+      return INIT_FAILED;
 
    EventSetTimer(TIMER_INTERVAL);
 

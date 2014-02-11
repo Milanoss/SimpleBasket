@@ -23,7 +23,7 @@ public:
    //+------------------------------------------------------------------+
    virtual void      openFile(string m_basketName,int m_timeframe)
      {
-      string fName=basketName+(string)timeframe+".hst";
+      string fName=m_basketName+(string)m_timeframe+".hst";
       file=FileOpenHistory(fName,FILE_BIN|FILE_WRITE|FILE_SHARE_WRITE|FILE_SHARE_READ|FILE_ANSI);
       if(file<0)
         {
@@ -42,8 +42,8 @@ public:
 
       FileWriteInteger(file,401,LONG_VALUE);
       FileWriteString(file,"(C)opyright 2003, MetaQuotes Software Corp.",64);
-      FileWriteString(file,basketName,12);
-      FileWriteInteger(file,timeframe,LONG_VALUE);
+      FileWriteString(file,m_basketName,12);
+      FileWriteInteger(file,m_timeframe,LONG_VALUE);
       FileWriteInteger(file,0,LONG_VALUE);
       FileWriteInteger(file,0,LONG_VALUE);
       FileWriteInteger(file,0,LONG_VALUE);
@@ -54,7 +54,7 @@ public:
    //+------------------------------------------------------------------+
    //| Writes bar into file and sets temporary position                 |
    //+------------------------------------------------------------------+
-   void      writeBar(MqlRates &m_bar)
+   void      writeBarConcrete(MqlRates &m_bar)
      {
       FileSeek(file,tmpPosition,SEEK_SET);
       FileWriteStruct(file,m_bar);

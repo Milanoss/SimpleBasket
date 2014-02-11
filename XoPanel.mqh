@@ -37,6 +37,8 @@ private:
    bool              createPairLabel(int i,string pairName,int m_boxSize);
    //---
    void              updateArrow(CLabel *arrow,double buy,bool last);
+   //---
+   void              oldObjectsDelete();
 public:
    //---
    void              XoPanel();
@@ -46,8 +48,6 @@ public:
    bool virtual      Create(string m_pairs,string m_boxSize,int m_x,int m_y,int m_fontSize,int m_arrowSize);
    //---
    void              updateValues();
-   //---
-   void              CleanOldObjects();
   };
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -55,6 +55,7 @@ public:
 void XoPanel::XoPanel()
   {
    objPrefix="XoPanel";
+   oldObjectsDelete();
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -67,8 +68,6 @@ void XoPanel::~XoPanel()
 //+------------------------------------------------------------------+
 bool  XoPanel::Create(string m_pairs,string m_boxSize,int m_x,int m_y,int m_fontSize,int m_arrowSize)
   {
-   CleanOldObjects();
-   Print("Clean now");
    x=m_x;
    y=m_y;
    fontSize=m_fontSize;
@@ -78,9 +77,8 @@ bool  XoPanel::Create(string m_pairs,string m_boxSize,int m_x,int m_y,int m_font
         }else{
       arrowSize=m_arrowSize;
      }
-	Print("Init");
+
    if(!init(m_pairs,m_boxSize)) return false;
-   Print("Init done");
 
    if(!Show()) return false;
 
@@ -223,22 +221,19 @@ bool XoPanel::init(string m_pairs,string m_boxSize)
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-void XoPanel::CleanOldObjects()
+void XoPanel::oldObjectsDelete()
   {
-   Print(ObjectsTotal()); 
    string name;
+   bool found=false;
    for(int i=0;i<ObjectsTotal();i++)
      {
       name=ObjectName(0,i);
-      Print(name);
       if(StringFind(name,objPrefix)!=-1)
         {
-         Print("Delete Object: ",name);
          ObjectDelete(0,name);
-        }else{
-        Print("Cannot delete Object: ",name);
+         found=true;
         }
      }
-     Print(ObjectsTotal());
+   if(found)oldObjectsDelete();
   }
 //+------------------------------------------------------------------+
