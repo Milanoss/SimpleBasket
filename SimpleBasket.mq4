@@ -20,6 +20,7 @@
 
 // Default values - if you need change something, it should be in #defines here
 #define BASKET_SIZE      14
+#define BASKET_BOX_SIZE  350
 #define BASKET_LOT_SIZE  0.01
 #define BASKET_MAX_BARS  1000
 #define BASKET_NAME      "Basket"
@@ -30,8 +31,12 @@
 // Do not touch rest of code please. If you need change, contact developers of these scripts please
 
 // Configurable values
-input string ________="Select basket size or enter list of symbols";
-input string    basketSizeOrSymbols=(string)BASKET_SIZE;
+input string ________="Basket size '14' or list of symbols 'EURUSD,GBPJPY'";
+input string basketSizeOrSymbols=(string)BASKET_SIZE;
+input string _________     = "BoxSize for XO indicator";
+input string __________    = "Value: '10' - all pairs have same boxSize";
+input string ___________   = "Value: '10,20' - two pairs with different boxSize";
+input string basketBoxSize = (string)BASKET_BOX_SIZE;
 input double basketLotSize = BASKET_LOT_SIZE;
 input int basketMaxBars    = BASKET_MAX_BARS;
 input string basketName    = BASKET_NAME;
@@ -52,7 +57,7 @@ int OnInit()
    basket=new Basket(new HstBasketWriter(),basketSizeOrSymbols,basketLotSize,basketMaxBars,basketName,timeframe);
    panel=new XoPanel();
 
-   if(!panel.Create("USDJPY:100,EURUSD:5000",20,20,10,5))
+   if(!panel.Create(basket.getPairs(),basketBoxSize,20,20,10,5))
       return INIT_FAILED;
 
    EventSetTimer(TIMER_INTERVAL);

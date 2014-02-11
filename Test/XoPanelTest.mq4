@@ -9,7 +9,7 @@
 #property strict
 #property indicator_chart_window
 
-#include "XoPanel.mqh"
+#include "../XoPanel.mqh"
 
 XoPanel  *panel;
 //+------------------------------------------------------------------+
@@ -17,10 +17,9 @@ XoPanel  *panel;
 //+------------------------------------------------------------------+
 int OnInit()
   {
-   string  pairs="USDJPY:100,EURUSD:5000";
    panel=new XoPanel();
 
-   if(!panel.Create(pairs,20,20,10,5))
+   if(!panel.Create("USDJPY,EURUSD","100,200",20,20,10,5))
       return INIT_FAILED;
 
    return INIT_SUCCEEDED;
