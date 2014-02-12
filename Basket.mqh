@@ -152,18 +152,18 @@ bool Basket::isHistoryLoaded()
    ResetLastError();
    for(int j=0;j<ArraySize(pairs);j++)
      {
-      iClose(pairs[j],timeframe,maxBars);
+      iClose(pairs[j],timeframe,initBars);
+      int error= GetLastError();
+      if(error!=0)
+        {
+         Print("Load histore error: ",error,",pair ",pairs[j],",tf ",timeframe,",initSize ",initBars);
+         Comment("Loading history data .....");
+         return false;
+        }
      }
-   if(GetLastError()!=0)
-     {
-      Comment("Loading history data .....");
-      return false;
-     }
-   else
-     {
-      Comment("");
-      return true;
-     }
+   Print("History load done");
+   Comment("");
+   return true;
   }
 //+------------------------------------------------------------------+
 //| Init basket - open file, write header into file and write        |
