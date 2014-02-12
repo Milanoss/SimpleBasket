@@ -177,6 +177,11 @@ bool  Basket::Create()
       return false;
      }
    firstTime=true;
+   if(StringToInteger(StringSubstr(basketName,StringLen(basketName)-1))>0)
+     {
+      Alert("Basket name cannot ends by number!");
+      return false;
+     }
    return true;
   }
 //+------------------------------------------------------------------+

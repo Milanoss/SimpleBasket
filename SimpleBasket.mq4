@@ -26,6 +26,7 @@
 #define BASKET_NAME      "Basket"
 #define BASKET_TIMEFRAME 240
 
+#define XO_ENABLED       true
 #define XO_BOX_SIZE      350
 #define XO_BARS_COUNT      5
 
@@ -42,6 +43,7 @@ input string basketSizeOrSymbols=(string)BASKET_SIZE;
 input string _________     = "BoxSize for XO indicator";
 input string __________    = "Value: '10' - all pairs have same boxSize";
 input string ___________   = "Value: '10,20' - two pairs with different boxSize";
+input bool   xoEnabled=XO_ENABLED;
 input string xoBoxSize=(string)XO_BOX_SIZE;
 input int    xoBarsCount=XO_BARS_COUNT;
 input int    timeframe=BASKET_TIMEFRAME;
@@ -63,9 +65,12 @@ int OnInit()
    if(!basket.Create())
       return INIT_FAILED;
 
-   panel=new XoPanel();
-   if(!panel.Create(basket.getPairs(),xoBoxSize,20,30,10,xoBarsCount))
-      return INIT_FAILED;
+   if(xoEnabled)
+     {
+      panel=new XoPanel();
+      if(!panel.Create(basket.getPairs(),xoBoxSize,20,30,10,xoBarsCount))
+         return INIT_FAILED;
+     }
 
    EventSetTimer(TIMER_INTERVAL);
 
@@ -79,7 +84,10 @@ void OnDeinit(const int reason)
    EventKillTimer();
 
    delete(basket);
-   panel.Destroy(reason);
+   if(xoEnabled)
+     {
+      panel.Destroy(reason);
+     }
   }
 //+------------------------------------------------------------------+
 //| It is called by timer, basket is updated                         |
@@ -102,7 +110,10 @@ int OnCalculate(const int rates_total,
                 const long &volume[],
                 const int &spread[])
   {
-   panel.updateValues();
+   if(xoEnabled)
+     {
+      panel.updateValues();
+     }
    return(rates_total);
   }
 //+------------------------------------------------------------------+

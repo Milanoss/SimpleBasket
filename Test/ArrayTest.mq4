@@ -14,8 +14,10 @@
 int OnInit()
   {
 //--- indicator buffers mapping
-   int a[2][3] = {1,2,3,4,5,6};
-   ArrayResize(a[0],9);
+   string a="aaaaaaabbbbbbbccccccde1";
+   Print(StringToInteger(StringSubstr(a,StringLen(a)-1))>0);
+   Print("day ",PERIOD_D1);
+   Print("month ",PERIOD_MN1);
 //---
    return(INIT_SUCCEEDED);
   }
@@ -34,7 +36,7 @@ int OnCalculate(const int rates_total,
                 const int &spread[])
   {
 //---
-   
+
 //--- return value of prev_calculated for next call
    return(rates_total);
   }
@@ -47,6 +49,6 @@ void OnChartEvent(const int id,
                   const string &sparam)
   {
 //---
-   
+
   }
 //+------------------------------------------------------------------+
