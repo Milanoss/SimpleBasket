@@ -182,6 +182,11 @@ bool  Basket::Create()
       Alert("Basket name cannot ends by number!");
       return false;
      }
+   if(StringLen(basketName)>6)
+     {
+      Alert("Basket name can have 6 chars max!");
+      return false;
+     }
    return true;
   }
 //+------------------------------------------------------------------+
