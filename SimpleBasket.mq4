@@ -19,6 +19,8 @@
 #property indicator_chart_window
 
 // Default values - if you need change something, it should be in #defines here
+#define XO_INDICATOR_NAME "I_XO_A_H_MI"
+
 #define BASKET_SIZE      14
 #define BASKET_LOT_SIZE  0.01
 #define BASKET_INIT_BARS 1000
@@ -43,11 +45,12 @@ input string basketSizeOrSymbols=(string)BASKET_SIZE;
 input string _________     = "BoxSize for XO indicator";
 input string __________    = "Value: '10' - all pairs have same boxSize";
 input string ___________   = "Value: '10,20' - two pairs with different boxSize";
-input bool   xoEnabled=XO_ENABLED;
-input string xoBoxSize=(string)XO_BOX_SIZE;
-input int    xoBarsCount=XO_BARS_COUNT;
-input int    timeframe=BASKET_TIMEFRAME;
-input double lotSize=BASKET_LOT_SIZE;
+input bool   xoEnabled     = XO_ENABLED;
+input string xoBoxSize     = (string)XO_BOX_SIZE;
+input int    xoBarsCount   = XO_BARS_COUNT;
+input string xoIndiName    = XO_INDICATOR_NAME;
+input int    timeframe     = BASKET_TIMEFRAME;
+input double lotSize       = BASKET_LOT_SIZE;
 
 #include "Basket.mqh"
 #include "HstBasketWriter.mqh"
@@ -68,7 +71,7 @@ int OnInit()
    if(xoEnabled)
      {
       panel=new XoPanel();
-      if(!panel.Create(basket.getPairs(),xoBoxSize,20,30,10,xoBarsCount))
+      if(!panel.Create(basket.getPairs(),xoBoxSize,20,30,10,xoBarsCount,xoIndiName))
          return INIT_FAILED;
      }
 

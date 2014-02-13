@@ -11,8 +11,6 @@
 #include <Controls\Label.mqh>
 #include <Controls\Panel.mqh>
 #include <Controls\WndContainer.mqh>
-
-#define INDICATOR_NAME "I_XO_A_H"
 //+------------------------------------------------------------------+
 //| Panel with I_XO_A_H values                                       |
 //+------------------------------------------------------------------+
@@ -30,6 +28,7 @@ private:
    int               arrowSize;
    int               boxSize[];
    string            objPrefix;
+   string            xoIndiName;
 
    //---
    bool              init(string m_pairs,string m_boxSize);
@@ -45,7 +44,7 @@ public:
    //---
    void             ~XoPanel();
    //---
-   bool virtual      Create(string m_pairs,string m_boxSize,int m_x,int m_y,int m_fontSize,int m_arrowSize);
+   bool virtual      Create(string m_pairs,string m_boxSize,int m_x,int m_y,int m_fontSize,int m_arrowSize,string xoIndiName);
    //---
    void              updateValues();
   };
@@ -66,16 +65,19 @@ void XoPanel::~XoPanel()
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-bool  XoPanel::Create(string m_pairs,string m_boxSize,int m_x,int m_y,int m_fontSize,int m_arrowSize)
+bool  XoPanel::Create(string m_pairs,string m_boxSize,int m_x,int m_y,int m_fontSize,int m_arrowSize,string m_xoIndiName)
   {
-   x=m_x;
-   y=m_y;
-   fontSize=m_fontSize;
-   if(m_arrowSize>5 || arrowSize<0)
+   this.x=m_x;
+   this.y=m_y;
+   this.fontSize=m_fontSize;
+   this.xoIndiName=m_xoIndiName;
+   if(m_arrowSize>5 || m_arrowSize<0)
      {
-      arrowSize=5;
-        }else{
-      arrowSize=m_arrowSize;
+      this.arrowSize=5;
+     }
+   else
+     {
+      this.arrowSize=m_arrowSize;
      }
 
    if(!init(m_pairs,m_boxSize)) return false;
@@ -93,7 +95,7 @@ void XoPanel::updateValues()
      {
       for(int j=0;j<arrowSize;j++)
         {
-         double buy=iCustom(pairs[i].Text(),0,INDICATOR_NAME,boxSize[i],0,arrowSize-j-1);
+         double buy=iCustom(pairs[i].Text(),0,xoIndiName,boxSize[i],0,arrowSize-j-1);
          updateArrow(pairsArrow[i][j],buy,arrowSize-j-1==0);
         }
      }
