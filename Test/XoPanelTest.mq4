@@ -19,7 +19,7 @@ int OnInit()
   {
    panel=new XoPanel();
 
-   if(!panel.Create("USDJPY,EURUSD","100,200",20,20,10,5))
+   if(!panel.Create("USDJPY,EURUSD","100,200",50,50,10,5,"../I_XO_A_H_MI"))
       return INIT_FAILED;
 
    return INIT_SUCCEEDED;
@@ -59,6 +59,6 @@ void OnChartEvent(const int id,
                   const double &dparam,
                   const string &sparam)
   {
-//panel.OnEvent(id,lparam,dparam,sparam);
+   Print(id," ",lparam," ",dparam," ",sparam);
   }
 //+------------------------------------------------------------------+
