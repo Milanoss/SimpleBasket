@@ -8,82 +8,87 @@
 #property version   "1.00"
 #property strict
 
-#include <Controls\Label.mqh>
+#include <Controls\Edit.mqh>
+#include <Controls\Button.mqh>
 #include <Controls\Panel.mqh>
-#include <Controls\WndContainer.mqh>
+#include <Controls\Dialog.mqh>
 //+------------------------------------------------------------------+
 //| Panel with I_XO_A_H values                                       |
 //+------------------------------------------------------------------+
-class XoPanel : public CWndContainer
+class XoPanel : public CAppDialog
   {
 
 private:
-   CLabel           *pairs[];
-   CLabel           *pairsArrow[][5];
-   CLabel           *boxSizeLabel[];
-   CPanel           *panel;
-   int               x;
-   int               y;
+   CButton          *pairs[];
+   CButton          *pairsArrow[][5];
+   CButton          *boxSizeLabel[];
    int               fontSize;
    int               arrowSize;
    int               boxSize[];
-   string            objPrefix;
+   string            pairsStr[];
    string            xoIndiName;
 
    //---
-   bool              init(string m_pairs,string m_boxSize);
-   //---
    bool              createPairLabel(int i,string pairName,int m_boxSize);
    //---
-   void              updateArrow(CLabel *arrow,double buy,bool last);
+   void              updateArrow(CButton *arrow,double buy,bool last);
    //---
-   void              oldObjectsDelete();
+   virtual void      OnClickButtonClose(void);
 public:
    //---
    void              XoPanel();
    //---
    void             ~XoPanel();
    //---
-   bool virtual      Create(string m_pairs,string m_boxSize,int m_x,int m_y,int m_fontSize,int m_arrowSize,string xoIndiName);
+   bool virtual      Create(const long chart,const string name,const int subwin,
+                            const int x1,const int y1,const int x2,const int y2);
+   //---
+   bool              init(string m_pairs,string m_boxSize,int m_fontSize,int m_arrowSize,string m_xoIndiName);
    //---
    void              updateValues();
   };
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-void XoPanel::XoPanel()
-  {
-   objPrefix="XoPanel";
-   oldObjectsDelete();
-  }
+void XoPanel::XoPanel(){}
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-void XoPanel::~XoPanel()
-  {
-  }
+void XoPanel::~XoPanel(){}
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-bool  XoPanel::Create(string m_pairs,string m_boxSize,int m_x,int m_y,int m_fontSize,int m_arrowSize,string m_xoIndiName)
+bool  XoPanel::Create(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2)
   {
-   this.x=m_x;
-   this.y=m_y;
-   this.fontSize=m_fontSize;
-   this.xoIndiName=m_xoIndiName;
-   if(m_arrowSize>5 || m_arrowSize<0)
+   int h=(fontSize+10)*ArraySize(pairs)+30;
+   int w=138+arrowSize*10;
+   if(!CAppDialog::Create(chart,"XO",subwin,x1,y1,x1+w,y1+h))
+      return false;
+
+// Panel pairs labels
+   for(int i=0;i<ArraySize(pairs);i++)
      {
-      this.arrowSize=5;
+      if(!createPairLabel(i,pairsStr[i],boxSize[i]))
+         return false;
      }
-   else
+
+// Panel XO indicator
+   for(int i=0;i<ArraySize(pairs);i++)
      {
-      this.arrowSize=m_arrowSize;
+      for(int j=0;j<arrowSize;j++)
+        {
+         pairsArrow[i][j]=new CButton();
+         if(!pairsArrow[i][j].Create(0,m_name+"Arrow"+IntegerToString(i)+"_"+IntegerToString(j),0,125+j*10,CONTROLS_DIALOG_CAPTION_HEIGHT+(fontSize+10)*(i-1),138+j*10,CONTROLS_DIALOG_CAPTION_HEIGHT+(fontSize+10)*i))
+            return false;
+         pairsArrow[i][j].Font("Wingdings");
+         pairsArrow[i][j].FontSize(fontSize);
+         pairsArrow[i][j].ColorBackground(CONTROLS_DIALOG_COLOR_CLIENT_BG);
+         pairsArrow[i][j].ColorBorder(CONTROLS_DIALOG_COLOR_CLIENT_BG);
+         pairsArrow[i][j].Text("");
+         if(!Add(pairsArrow[i][j]))
+            return false;
+        }
      }
-
-   if(!init(m_pairs,m_boxSize)) return false;
-
-   if(!Show()) return false;
-
    return true;
   }
 //+------------------------------------------------------------------+
@@ -104,7 +109,7 @@ void XoPanel::updateValues()
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-void XoPanel::updateArrow(CLabel *arrow,double buy,bool last)
+void XoPanel::updateArrow(CButton *arrow,double buy,bool last)
   {
    if(buy>0)
      {
@@ -128,8 +133,8 @@ void XoPanel::updateArrow(CLabel *arrow,double buy,bool last)
 //+------------------------------------------------------------------+
 bool XoPanel::createPairLabel(int i,string pairName,int m_boxSize)
   {
-   pairs[i]=new CLabel();
-   if(!pairs[i].Create(0,objPrefix+IntegerToString(i),0,x,y+(fontSize+10)*i,x+10,y+(fontSize+10)*i+10))
+   pairs[i]=new CButton();
+   if(!pairs[i].Create(0,m_name+"Pair"+IntegerToString(i),0,1,CONTROLS_DIALOG_CAPTION_HEIGHT+(fontSize+10)*(i-1),81,CONTROLS_DIALOG_CAPTION_HEIGHT+(fontSize+10)*i))
       return false;
    if(!Add(pairs[i]))
       return false;
@@ -137,9 +142,13 @@ bool XoPanel::createPairLabel(int i,string pairName,int m_boxSize)
    pairs[i].Font("Arial Black");
    pairs[i].FontSize(fontSize);
    pairs[i].Color(Blue);
+   pairs[i].ColorBackground(CONTROLS_DIALOG_COLOR_CLIENT_BG);
+   pairs[i].ColorBorder(CONTROLS_DIALOG_COLOR_CLIENT_BG);
+   pairs[i].Locking(true);
 
-   boxSizeLabel[i]=new CLabel();
-   if(!boxSizeLabel[i].Create(0,objPrefix+"BoxSize"+IntegerToString(i),0,x+80,y+(fontSize+10)*i,0,0))
+
+   boxSizeLabel[i]=new CButton();
+   if(!boxSizeLabel[i].Create(0,m_name+"BoxSize"+IntegerToString(i),0,83,CONTROLS_DIALOG_CAPTION_HEIGHT+(fontSize+10)*(i-1),123,CONTROLS_DIALOG_CAPTION_HEIGHT+(fontSize+10)*i))
       return false;
    if(!Add(boxSizeLabel[i]))
       return false;
@@ -147,15 +156,27 @@ bool XoPanel::createPairLabel(int i,string pairName,int m_boxSize)
    boxSizeLabel[i].Font("Arial Black");
    boxSizeLabel[i].FontSize(fontSize);
    boxSizeLabel[i].Color(Blue);
+   boxSizeLabel[i].ColorBackground(CONTROLS_DIALOG_COLOR_CLIENT_BG);
+   boxSizeLabel[i].ColorBorder(CONTROLS_DIALOG_COLOR_CLIENT_BG);
 
    return true;
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-bool XoPanel::init(string m_pairs,string m_boxSize)
+bool XoPanel::init(string m_pairs,string m_boxSize,int m_fontSize,int m_arrowSize,string m_xoIndiName)
   {
-   string pairsStr[];
+   this.fontSize=m_fontSize;
+   this.xoIndiName=m_xoIndiName;
+   if(m_arrowSize>5 || m_arrowSize<0)
+     {
+      this.arrowSize=5;
+     }
+   else
+     {
+      this.arrowSize=m_arrowSize;
+     }
+
    StringSplit(m_pairs,',',pairsStr);
 
    string boxSizesStr[];
@@ -187,55 +208,12 @@ bool XoPanel::init(string m_pairs,string m_boxSize)
          boxSize[i]=StrToInteger(boxSizesStr[i]);
         }
      }
-
-// Background panel
-   panel=new CPanel();
-   if(!panel.Create(0,objPrefix+"Panel",0,x-2,y,x+125+arrowSize*10,y+(fontSize+10)*size))
-      return false;
-   if(!Add(panel))
-      return false;
-   panel.ColorBackground(Silver);
-
-// Panel pairs labels
-   for(int i=0;i<size;i++)
-     {
-      if(!createPairLabel(i,pairsStr[i],boxSize[i]))
-         return false;
-     }
-
-// Panel XO indicator
-   for(int i=0;i<ArraySize(pairs);i++)
-     {
-      for(int j=0;j<arrowSize;j++)
-        {
-         pairsArrow[i][j]=new CLabel();
-         if(!pairsArrow[i][j].Create(0,objPrefix+"Arrow"+IntegerToString(i)+"_"+IntegerToString(j),0,x+120+j*10,y+(fontSize+10)*i+2,0,0))
-            return false;
-         pairsArrow[i][j].Font("Wingdings");
-         pairsArrow[i][j].FontSize(fontSize);
-         if(!Add(pairsArrow[i][j]))
-            return false;
-        }
-     }
-
    return true;
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-void XoPanel::oldObjectsDelete()
+void      XoPanel::OnClickButtonClose(void)
   {
-   string name;
-   bool found=false;
-   for(int i=0;i<ObjectsTotal();i++)
-     {
-      name=ObjectName(0,i);
-      if(StringFind(name,objPrefix)!=-1)
-        {
-         ObjectDelete(0,name);
-         found=true;
-        }
-     }
-   if(found)oldObjectsDelete();
   }
 //+------------------------------------------------------------------+

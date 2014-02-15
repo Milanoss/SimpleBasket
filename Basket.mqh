@@ -57,7 +57,7 @@ public:
    //--- Init basket - open file, write header into file and write and write all possible bars from all pairs  
    bool              Create();
    //--- Called by timer to update last bar of graph. If new bar is added it is written and also new temporary bar is written
-   void              updateLastBar();
+   bool              updateLastBar();
    //--- Gets pairs as string "GBPJPY,EURUSD" 
    string            getPairs();
   };
@@ -94,13 +94,13 @@ void Basket::~Basket()
 //| Called by timer to update last bar of graph. If new bar is added |
 //| it is written and also new temporary bar is written              |
 //+------------------------------------------------------------------+
-void              Basket::updateLastBar()
+bool              Basket::updateLastBar()
   {
    if(firstTime)
      {
       if(!isHistoryLoaded())
         {
-         return;
+         return false;
         }
       countWeight();
 
@@ -131,6 +131,7 @@ void              Basket::updateLastBar()
      }
 
    notifyWindow();
+   return true;
   }
 //+------------------------------------------------------------------+
 //| Gets pairs as string "GBPJPY,EURUSD"                             |

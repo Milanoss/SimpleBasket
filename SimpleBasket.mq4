@@ -49,7 +49,7 @@ input bool   xoEnabled     = XO_ENABLED;
 input string xoBoxSize     = (string)XO_BOX_SIZE;
 input int    xoBarsCount   = XO_BARS_COUNT;
 input string xoIndiName    = XO_INDICATOR_NAME;
-input int    timeframe     = BASKET_TIMEFRAME;
+input int    timeFrame     = BASKET_TIMEFRAME;
 input double lotSize       = BASKET_LOT_SIZE;
 
 #include "Basket.mqh"
@@ -59,19 +59,24 @@ input double lotSize       = BASKET_LOT_SIZE;
 
 Basket   *basket;
 XoPanel  *panel;
+bool              initDone=false;
 //+------------------------------------------------------------------+
 //| Create basket and timer                                          |
 //+------------------------------------------------------------------+
 int OnInit()
   {
-   basket=new Basket(new HstBasketWriter(),basketSizeOrSymbols,lotSize,basketInitBars,basketMaxBars,basketName,timeframe);
+   basket=new Basket(new HstBasketWriter(),basketSizeOrSymbols,lotSize,basketInitBars,basketMaxBars,basketName,timeFrame);
    if(!basket.Create())
       return INIT_FAILED;
 
    if(xoEnabled)
      {
       panel=new XoPanel();
-      if(!panel.Create(basket.getPairs(),xoBoxSize,20,30,10,xoBarsCount,xoIndiName))
+      if(!panel.init(basket.getPairs(),xoBoxSize,10,xoBarsCount,xoIndiName))
+         return INIT_FAILED;
+      if(!panel.Create(0,"",0,10,10,0,0))
+         return INIT_FAILED;
+      if(!panel.Run())
          return INIT_FAILED;
      }
 
@@ -90,6 +95,7 @@ void OnDeinit(const int reason)
    if(xoEnabled)
      {
       panel.Destroy(reason);
+      delete(panel);
      }
   }
 //+------------------------------------------------------------------+
@@ -97,7 +103,11 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTimer()
   {
-   basket.updateLastBar();
+   initDone=basket.updateLastBar();
+   if(xoEnabled && initDone)
+     {
+      panel.updateValues();
+     }
   }
 //+------------------------------------------------------------------+
 //| Nothing to count, it is event for new tick                      |
@@ -113,10 +123,20 @@ int OnCalculate(const int rates_total,
                 const long &volume[],
                 const int &spread[])
   {
-   if(xoEnabled)
-     {
-      panel.updateValues();
-     }
    return(rates_total);
   }
+//+------------------------------------------------------------------+
+//| ChartEvent function                                              |
+//+------------------------------------------------------------------+
+void OnChartEvent(const int id,
+                  const long &lparam,
+                  const double &dparam,
+                  const string &sparam)
+  {
+   if(xoEnabled && initDone)
+     {
+      panel.ChartEvent(id,lparam,dparam,sparam);
+     }
+  }
+
 //+------------------------------------------------------------------+
