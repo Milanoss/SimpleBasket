@@ -74,7 +74,7 @@ int OnInit()
       panel=new XoPanel();
       if(!panel.init(basket.getPairs(),xoBoxSize,10,xoBarsCount,xoIndiName))
          return INIT_FAILED;
-      if(!panel.Create(0,"",0,10,10,0,0))
+      if(!panel.Create(0,"Basket",0,10,10,100,100))
          return INIT_FAILED;
       if(!panel.Run())
          return INIT_FAILED;

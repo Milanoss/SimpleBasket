@@ -62,7 +62,7 @@ bool  XoPanel::Create(const long chart,const string name,const int subwin,const 
   {
    int h=(fontSize+10)*ArraySize(pairs)+30;
    int w=138+arrowSize*10;
-   if(!CAppDialog::Create(chart,"XO",subwin,x1,y1,x1+w,y1+h))
+   if(!CAppDialog::Create(chart,name,subwin,x1,y1,x1+w,y1+h))
       return false;
 
 // Panel pairs labels
