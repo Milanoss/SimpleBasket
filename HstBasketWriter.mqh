@@ -73,10 +73,5 @@ public:
       lastTime=m_bar.time;
      }
 
-   datetime          getLastBarTime()
-     {
-      return lastTime;
-     }
-
   };
 //+------------------------------------------------------------------+

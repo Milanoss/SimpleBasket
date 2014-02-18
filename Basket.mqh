@@ -6,7 +6,7 @@
 #property copyright "Milanoss"
 #property link      "http://www.forexfactory.com/showthread.php?t=391229"
 #property version   "1.00"
-#property strict
+//#property strict
 
 #include <WinUser32.mqh>
 #include <stderror.mqh>
@@ -51,7 +51,8 @@ private:
 
 public:
    //--- Create basket 
-   void              Basket(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSize=0.01,int m_initBars=1000,int m_maxBars=1100,string m_basketName="Basket",int m_timeframe=240);
+   void              Basket(){}
+   void              MyInit(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSize=0.01,int m_initBars=1000,int m_maxBars=1100,string m_basketName="Basket",int m_timeframe=240);
    //--- Destroy basket
    void             ~Basket();
    //--- Init basket - open file, write header into file and write and write all possible bars from all pairs  
@@ -64,7 +65,7 @@ public:
 //+------------------------------------------------------------------+
 //| Create basket                                                    |
 //+------------------------------------------------------------------+
-void Basket::Basket(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSize=0.01,int m_initBars=1000,int m_maxBars=1100,string m_basketName="Basket",int m_timeframe=240)
+void Basket::MyInit(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSize=0.01,int m_initBars=1000,int m_maxBars=1100,string m_basketName="Basket",int m_timeframe=240)
   {
    this.writer     = m_writer;
    this.lotSize    = m_lotSize;
@@ -89,6 +90,7 @@ void Basket::Basket(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSize
 void Basket::~Basket()
   {
    writer.closeFile();
+   delete writer;
   }
 //+------------------------------------------------------------------+
 //| Called by timer to update last bar of graph. If new bar is added |
@@ -111,7 +113,7 @@ bool              Basket::updateLastBar()
       writeCurrentBars();
       firstTime=false;
      }
-   else
+   else     
      {
       MqlRates          bar;
       datetime newTime=iTime(pairs[0],timeframe,0);
@@ -370,7 +372,7 @@ MqlRates          Basket::countBar(MqlRates &m_bar,int shift)
       m_bar.high   = m_bar.high   + weights[j] * iHigh(pairs[j],timeframe,shift);
       m_bar.low    = m_bar.low    + weights[j] * iLow(pairs[j],timeframe,shift);
       m_bar.open   = m_bar.open   + weights[j] * iOpen(pairs[j],timeframe,shift);
-      m_bar.tick_volume=m_bar.tick_volume+(int)weights[j]*iVolume(pairs[j],timeframe,shift);
+      m_bar.tick_volume=m_bar.tick_volume+(int)(weights[j]*iVolume(pairs[j],timeframe,shift)*0.001);
      }
    m_bar.time=iTime(pairs[0],timeframe,shift);
 

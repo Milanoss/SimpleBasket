@@ -6,12 +6,14 @@
 #property copyright "Milanoss"
 #property link      "https://github.com/Milanoss/SimpleBasket"
 #property version   "1.00"
-#property strict
+//#property strict
 
 #include <Controls\Edit.mqh>
 #include <Controls\Button.mqh>
 #include <Controls\Panel.mqh>
 #include <Controls\Dialog.mqh>
+
+#define MAX_BARS_COUNT 5
 //+------------------------------------------------------------------+
 //| Panel with I_XO_A_H values                                       |
 //+------------------------------------------------------------------+
@@ -20,7 +22,7 @@ class XoPanel : public CAppDialog
 
 private:
    CButton          *pairs[];
-   CButton          *pairsArrow[][5];
+   CButton          *pairsArrow[][MAX_BARS_COUNT];
    CButton          *boxSizeLabel[];
    int               fontSize;
    int               arrowSize;
@@ -32,20 +34,21 @@ private:
    bool              createPairLabel(int i,string pairName,int m_boxSize);
    //---
    void              updateArrow(CButton *arrow,double buy,bool last);
-   //---
-   virtual void      OnClickButtonClose(void);
 public:
    //---
    void              XoPanel();
    //---
    void             ~XoPanel();
    //---
-   bool virtual      Create(const long chart,const string name,const int subwin,
+   bool       Create(const long chart,const string name,const int subwin,
                             const int x1,const int y1,const int x2,const int y2);
    //---
-   bool              init(string m_pairs,string m_boxSize,int m_fontSize,int m_arrowSize,string m_xoIndiName);
+   bool              NextInit(string m_pairs,string m_boxSize,int m_fontSize,int m_arrowSize,string m_xoIndiName);
    //---
    void              updateValues();
+   
+   bool Save(const int file_handle){return true;}
+   bool Load(const int file_handle){return true;}
   };
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -54,21 +57,35 @@ void XoPanel::XoPanel(){}
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-void XoPanel::~XoPanel(){}
+void XoPanel::~XoPanel()
+  {
+   for(int i=0;i<ArraySize(pairs);i++)
+     {
+      delete pairs[i];
+      delete boxSizeLabel[i];
+      for(int j=0;j<MAX_BARS_COUNT;j++)
+        {
+         delete pairsArrow[i][j];
+        }
+     }
+
+  }
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
 bool  XoPanel::Create(const long chart,const string name,const int subwin,const int x1,const int y1,const int x2,const int y2)
   {
-   int h=(fontSize+10)*ArraySize(pairs)+30;
-   int w=138+arrowSize*10;
-   if(!CAppDialog::Create(chart,name,subwin,x1,y1,x1+w,y1+h))
+   int nx2=x1+138+arrowSize*10;
+   int ny2=y1+(fontSize+10)*ArraySize(pairs)+30;
+
+   if(!CAppDialog::Create(chart,name,subwin,x1,y1,nx2,ny2))
       return false;
 
+
 // Panel pairs labels
-   for(int i=0;i<ArraySize(pairs);i++)
+   for(int k=0;k<ArraySize(pairs);k++)
      {
-      if(!createPairLabel(i,pairsStr[i],boxSize[i]))
+      if(!createPairLabel(k,pairsStr[k],boxSize[k]))
          return false;
      }
 
@@ -164,13 +181,13 @@ bool XoPanel::createPairLabel(int i,string pairName,int m_boxSize)
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-bool XoPanel::init(string m_pairs,string m_boxSize,int m_fontSize,int m_arrowSize,string m_xoIndiName)
+bool XoPanel::NextInit(string m_pairs,string m_boxSize,int m_fontSize,int m_arrowSize,string m_xoIndiName)
   {
    this.fontSize=m_fontSize;
    this.xoIndiName=m_xoIndiName;
-   if(m_arrowSize>5 || m_arrowSize<0)
+   if(m_arrowSize>MAX_BARS_COUNT || m_arrowSize<0)
      {
-      this.arrowSize=5;
+      this.arrowSize=MAX_BARS_COUNT;
      }
    else
      {
@@ -203,17 +220,12 @@ bool XoPanel::init(string m_pairs,string m_boxSize,int m_fontSize,int m_arrowSiz
          Alert("BoxSize list has not the same length as Symbols list!");
          return false;
         }
-      for(int i=0;i<size;i++)
+      for(int j=0;j<size;j++)
         {
-         boxSize[i]=StrToInteger(boxSizesStr[i]);
+         boxSize[j]=StrToInteger(boxSizesStr[j]);
         }
      }
    return true;
   }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void      XoPanel::OnClickButtonClose(void)
-  {
-  }
+  
 //+------------------------------------------------------------------+

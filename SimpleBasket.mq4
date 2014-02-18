@@ -14,13 +14,11 @@
 #property description "6. Double click on indicator and enter same configuration!"
 #property description "7. Save graph as template"
 #property description "8. Enjoy... ;)"
-#property version   "1.00"
+#property version   "1.01"
 #property strict
 #property indicator_chart_window
 
 // Default values - if you need change something, it should be in #defines here
-#define XO_INDICATOR_NAME "I_XO_A_H_MI"
-
 #define BASKET_SIZE      14
 #define BASKET_LOT_SIZE  0.01
 #define BASKET_INIT_BARS 1000
@@ -28,57 +26,50 @@
 #define BASKET_NAME      "Basket"
 #define BASKET_TIMEFRAME 240
 
-#define XO_ENABLED       true
-#define XO_BOX_SIZE      350
-#define XO_BARS_COUNT      5
+#define BASKET_CSV_OUTPUT false
+#define BASKET_CSV_TARGET_PAIR "EURCZK"
 
 #define TIMER_INTERVAL   2
 
 // Do not touch rest of code please. If you need change, contact developers of these scripts please
 
 // Configurable values
-input string basketName    = BASKET_NAME;
-input int    basketInitBars= BASKET_INIT_BARS;
-input int    basketMaxBars = BASKET_MAX_BARS;
-input string ________="Basket size '14' or list of symbols 'EURUSD,GBPJPY'";
-input string basketSizeOrSymbols=(string)BASKET_SIZE;
-input string _________     = "BoxSize for XO indicator";
-input string __________    = "Value: '10' - all pairs have same boxSize";
-input string ___________   = "Value: '10,20' - two pairs with different boxSize";
-input bool   xoEnabled     = XO_ENABLED;
-input string xoBoxSize     = (string)XO_BOX_SIZE;
-input int    xoBarsCount   = XO_BARS_COUNT;
-input string xoIndiName    = XO_INDICATOR_NAME;
-input int    timeFrame     = BASKET_TIMEFRAME;
-input double lotSize       = BASKET_LOT_SIZE;
+extern string basketName    = BASKET_NAME;
+extern int    basketInitBars= BASKET_INIT_BARS;
+extern int    basketMaxBars = BASKET_MAX_BARS;
+extern string ________="Basket size '14' or list of symbols 'EURUSD,GBPJPY'";
+extern string basketSizeOrSymbols=(string)BASKET_SIZE;
+extern int    timeFrame     = BASKET_TIMEFRAME;
+extern double lotSize       = BASKET_LOT_SIZE;
+extern bool   csvOutputOnly = BASKET_CSV_OUTPUT;
+extern string csvTargetPair = BASKET_CSV_TARGET_PAIR;
+
 
 #include "Basket.mqh"
 #include "HstBasketWriter.mqh"
 #include "CsvBasketWriter.mqh"
-#include "XoPanel.mqh"
 
-Basket   *basket;
-XoPanel  *panel;
-bool              initDone=false;
+Basket   basket;
+BasketWriter *writer;
 //+------------------------------------------------------------------+
 //| Create basket and timer                                          |
 //+------------------------------------------------------------------+
 int OnInit()
   {
-   basket=new Basket(new HstBasketWriter(),basketSizeOrSymbols,lotSize,basketInitBars,basketMaxBars,basketName,timeFrame);
+
+   if(csvOutputOnly)
+     {
+      CsvBasketWriter *csvWriter=new CsvBasketWriter();
+      csvWriter.setTargetPair(csvTargetPair);
+      writer=csvWriter;
+     }
+   else
+     {
+      writer=new HstBasketWriter();
+     }
+   basket.MyInit(writer,basketSizeOrSymbols,lotSize,basketInitBars,basketMaxBars,basketName,timeFrame);
    if(!basket.Create())
       return INIT_FAILED;
-
-   if(xoEnabled)
-     {
-      panel=new XoPanel();
-      if(!panel.init(basket.getPairs(),xoBoxSize,10,xoBarsCount,xoIndiName))
-         return INIT_FAILED;
-      if(!panel.Create(0,"Basket",0,10,10,100,100))
-         return INIT_FAILED;
-      if(!panel.Run())
-         return INIT_FAILED;
-     }
 
    EventSetTimer(TIMER_INTERVAL);
 
@@ -90,24 +81,13 @@ int OnInit()
 void OnDeinit(const int reason)
   {
    EventKillTimer();
-
-   delete(basket);
-   if(xoEnabled)
-     {
-      panel.Destroy(reason);
-      delete(panel);
-     }
   }
 //+------------------------------------------------------------------+
 //| It is called by timer, basket is updated                         |
 //+------------------------------------------------------------------+
 void OnTimer()
   {
-   initDone=basket.updateLastBar();
-   if(xoEnabled && initDone)
-     {
-      panel.updateValues();
-     }
+   basket.updateLastBar();
   }
 //+------------------------------------------------------------------+
 //| Nothing to count, it is event for new tick                      |
@@ -124,19 +104,6 @@ int OnCalculate(const int rates_total,
                 const int &spread[])
   {
    return(rates_total);
-  }
-//+------------------------------------------------------------------+
-//| ChartEvent function                                              |
-//+------------------------------------------------------------------+
-void OnChartEvent(const int id,
-                  const long &lparam,
-                  const double &dparam,
-                  const string &sparam)
-  {
-   if(xoEnabled && initDone)
-     {
-      panel.ChartEvent(id,lparam,dparam,sparam);
-     }
   }
 
 //+------------------------------------------------------------------+
