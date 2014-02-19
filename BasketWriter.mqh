@@ -33,6 +33,8 @@ public:
    //+------------------------------------------------------------------+
    virtual void      writeHeader(string m_basketName,int m_timeframe){}
 
+   virtual void setTargetPair(string m_pair) {}
+
    //+------------------------------------------------------------------+
    //| Writes bar into file and sets temporary position                 |
    //+------------------------------------------------------------------+

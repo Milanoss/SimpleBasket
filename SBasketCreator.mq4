@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                                                     SimpleBasket |
+//|                                             SimpleBasketCrreator |
 //|                                         Copyright 2014, Milanoss |
 //|                         https://github.com/Milanoss/SimpleBasket |
 //+------------------------------------------------------------------+
@@ -10,65 +10,39 @@
 #property description "2. Double click on indicator and click OK"
 #property description "3. If you haven't history dowloaded wait until 'Loading history data ...' message disappear"
 #property description "4. Close chart"
-#property description "5. Open OFFLINE chart"
-#property description "6. Double click on indicator and enter same configuration!"
-#property description "7. Save graph as template"
-#property description "8. Enjoy... ;)"
-#property version   "1.01"
+#property version   "1.02"
 #property strict
 #property indicator_chart_window
 
-// Default values - if you need change something, it should be in #defines here
-#define BASKET_SIZE      14
-#define BASKET_LOT_SIZE  0.01
-#define BASKET_INIT_BARS 1000
-#define BASKET_MAX_BARS  1100
-#define BASKET_NAME      "Basket"
-#define BASKET_TIMEFRAME 240
-
-#define BASKET_CSV_OUTPUT false
-#define BASKET_CSV_TARGET_PAIR "EURCZK"
+#include "Basket.mqh"
+#include "HstBasketWriter.mqh"
+#include "Config.mqh"
 
 #define TIMER_INTERVAL   2
+#define INDICATOR_NAME   "SimpleBasketCreator"
 
 // Do not touch rest of code please. If you need change, contact developers of these scripts please
 
 // Configurable values
-extern string basketName    = BASKET_NAME;
-extern int    basketInitBars= BASKET_INIT_BARS;
-extern int    basketMaxBars = BASKET_MAX_BARS;
+extern string basketName    = "Basket";
+extern int    basketInitBars= 1000;
+extern int    basketMaxBars = 1100;
 extern string ________="Basket size '14' or list of symbols 'EURUSD,GBPJPY'";
-extern string basketSizeOrSymbols=(string)BASKET_SIZE;
-extern int    timeFrame     = BASKET_TIMEFRAME;
-extern double lotSize       = BASKET_LOT_SIZE;
-extern bool   csvOutputOnly = BASKET_CSV_OUTPUT;
-extern string csvTargetPair = BASKET_CSV_TARGET_PAIR;
-
-
-#include "Basket.mqh"
-#include "HstBasketWriter.mqh"
-#include "CsvBasketWriter.mqh"
+extern string basketSizeOrSymbols=(string)14;
+extern int    timeFrame     = 240;
+extern double lotSize       = 0.01;
 
 Basket   basket;
-BasketWriter *writer;
+bool initDone=false;
 //+------------------------------------------------------------------+
 //| Create basket and timer                                          |
 //+------------------------------------------------------------------+
 int OnInit()
   {
 
-   if(csvOutputOnly)
-     {
-      CsvBasketWriter *csvWriter=new CsvBasketWriter();
-      csvWriter.setTargetPair(csvTargetPair);
-      writer=csvWriter;
-     }
-   else
-     {
-      writer=new HstBasketWriter();
-     }
-   basket.MyInit(writer,basketSizeOrSymbols,lotSize,basketInitBars,basketMaxBars,basketName,timeFrame);
-   if(!basket.Create())
+   IndicatorSetString(INDICATOR_SHORTNAME,INDICATOR_NAME);
+
+   if(!basket.CreateInit(new HstBasketWriter(),basketSizeOrSymbols,lotSize,basketInitBars,basketMaxBars,basketName,timeFrame))
       return INIT_FAILED;
 
    EventSetTimer(TIMER_INTERVAL);
@@ -87,7 +61,12 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTimer()
   {
-   basket.updateLastBar();
+   if(!initDone)
+      initDone=basket.updateLastBar();
+   else
+     {
+      ChartIndicatorDelete(0,0,INDICATOR_NAME);
+     }
   }
 //+------------------------------------------------------------------+
 //| Nothing to count, it is event for new tick                      |

@@ -77,6 +77,7 @@ public:
       FileFlush(file);
       lastTime=m_bar.time;
      }
+     
    void setTargetPair(string m_pair)
      {
       targetClose=iClose(m_pair,0,0);
