@@ -28,7 +28,8 @@ extern string basketName    = "Basket";
 extern int    basketInitBars= 1000;
 extern int    basketMaxBars = 1100;
 extern string ________="Basket size '14' or list of symbols 'EURUSD,GBPJPY'";
-extern string basketSizeOrSymbols=(string)14;
+extern string _________="For EURUSD pair inversion use 'iEURUSD,GBPJPY'";
+extern string basketSizeOrSymbols="14";
 extern int    timeFrame     = 240;
 extern double lotSize       = 0.01;
 

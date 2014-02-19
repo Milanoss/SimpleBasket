@@ -39,6 +39,7 @@ int OnInit()
 
    writer=new CsvBasketWriter();
    writer.setTargetPair(targetPair);
+//if(!basket.CreateInit(writer,"iEURUSD",0.01,5,10,"Basket",240))
    if(!basket.Create(writer))
       return INIT_FAILED;
 

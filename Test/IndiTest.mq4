@@ -8,14 +8,27 @@
 #property version   "1.00"
 #property strict
 #property indicator_chart_window
-
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
 int OnInit()
   {
 //--- indicator buffers mapping
-GlobalVariableSet(Symbol()+"-"+Period(),"a");
+//Print(MarketInfo(Symbol(),MODE_POINT));
+//Print(MarketInfo(Symbol(),MODE_DIGITS));
+//Print(MarketInfo(Symbol(),MODE_LOTSIZE));
+//Print(MarketInfo(Symbol(),MODE_TICKSIZE));
+//Print(MarketInfo(Symbol(),MODE_TICKVALUE));
+   double dclose=140.66*2;
+   int i=1;
+   while(dclose>10)
+     {
+      dclose=dclose/10.0;
+      i=i*10;
+     }
+   dclose=MathCeil(dclose)*i;
+
+   Print(dclose);
 //---
    return(INIT_SUCCEEDED);
   }
@@ -34,7 +47,7 @@ int OnCalculate(const int rates_total,
                 const int &spread[])
   {
 //---
-   
+
 //--- return value of prev_calculated for next call
    return(rates_total);
   }

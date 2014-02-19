@@ -60,6 +60,7 @@ public:
       FileWriteStruct(file,m_bar);
       tmpPosition=FileTell(file);
       lastTime=m_bar.time;
+      //Print("T:",m_bar.time," O:",m_bar.open," H:",m_bar.high," L:",m_bar.low," C:",m_bar.close," V:",m_bar.tick_volume);
      }
 
    //+------------------------------------------------------------------+
@@ -71,6 +72,7 @@ public:
       FileWriteStruct(file,m_bar);
       FileFlush(file);
       lastTime=m_bar.time;
+      //Print("T:",m_bar.time," O:",m_bar.open," H:",m_bar.high," L:",m_bar.low," C:",m_bar.close," V:",m_bar.tick_volume);
      }
 
   };
