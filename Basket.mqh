@@ -132,7 +132,6 @@ string Basket::getPairs()
    for(int i=1;i<ArraySize(pairs);i++)
      {
       result=StringConcatenate(result,",",((invertNumber[i]!=0)?"i":"")+pairs[i]);
-      Print(invertNumber[i]);
      }
    return (result);
   }
