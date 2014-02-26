@@ -95,10 +95,14 @@ bool              Basket::updateLastBar()
       countWeight();
 
       writer.openFile(basketName,timeframe);
+      Print("SBasket Open file");
       writer.writeHeader(basketName,timeframe);
+      Print("SBasket Header done");
       writer.resetCounter();
+      Print("SBasket Counter reset");
 
       writeCurrentBars();
+      Print("SBasket Write bars");
       firstTime=false;
      }
    else
@@ -132,6 +136,7 @@ string Basket::getPairs()
    for(int i=1;i<ArraySize(pairs);i++)
      {
       result=StringConcatenate(result,",",((invertNumber[i]!=0)?"i":"")+pairs[i]);
+      //Print(invertNumber[i]);
      }
    return (result);
   }
