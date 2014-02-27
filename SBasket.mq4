@@ -26,12 +26,11 @@ Basket   basket;
 //+------------------------------------------------------------------+
 int OnInit()
   {
-   Print("SBasket init start");
    if(!basket.Create(new HstBasketWriter()))
       return INIT_FAILED;
 
    EventSetTimer(TIMER_INTERVAL);
-   Print("SBasket init end");
+
    return INIT_SUCCEEDED;
   }
 //+------------------------------------------------------------------+

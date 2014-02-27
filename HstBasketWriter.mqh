@@ -45,9 +45,13 @@ public:
       FileWriteString(file,m_basketName,12);
       FileWriteInteger(file,m_timeframe,LONG_VALUE);
       FileWriteInteger(file,0,LONG_VALUE);
-      FileWriteInteger(file,0,LONG_VALUE);
+      FileWriteInteger(file,84,CHAR_VALUE);
+      FileWriteInteger(file,71,CHAR_VALUE);
+      FileWriteInteger(file,3,CHAR_VALUE);
+      FileWriteInteger(file,83,CHAR_VALUE);
       FileWriteInteger(file,0,LONG_VALUE);
       FileWriteArray(file,unused,0,13);
+      FileFlush(file);
       tmpPosition=FileTell(file);
      }
 
@@ -56,7 +60,6 @@ public:
    //+------------------------------------------------------------------+
    void      writeBarConcrete(MqlRates &m_bar)
      {
-      FileSeek(file,tmpPosition,SEEK_SET);
       FileWriteStruct(file,m_bar);
       tmpPosition=FileTell(file);
       lastTime=m_bar.time;
