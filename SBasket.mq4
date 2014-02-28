@@ -26,6 +26,7 @@ Basket   basket;
 //+------------------------------------------------------------------+
 int OnInit()
   {
+   IndicatorShortName("SBasket");
    if(!basket.Create(new HstBasketWriter()))
       return INIT_FAILED;
 
