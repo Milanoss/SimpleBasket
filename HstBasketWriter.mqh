@@ -9,6 +9,7 @@
 #property strict
 
 #include "BasketWriter.mqh"
+#include "Logger.mqh"
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
@@ -25,6 +26,7 @@ public:
      {
       string fName=m_basketName+(string)m_timeframe+".hst";
       file=FileOpenHistory(fName,FILE_BIN|FILE_WRITE|FILE_SHARE_WRITE|FILE_SHARE_READ|FILE_ANSI);
+      logger.debug("File opened: "+fName);
       if(file<0)
         {
          Alert("Cannot open history file: ",fName);
@@ -44,7 +46,7 @@ public:
       FileWriteString(file,"(C)opyright 2003, MetaQuotes Software Corp.",64);
       FileWriteString(file,m_basketName,12);
       FileWriteInteger(file,m_timeframe,LONG_VALUE);
-      FileWriteInteger(file,0,LONG_VALUE);
+      FileWriteInteger(file,2,LONG_VALUE);
       FileWriteInteger(file,84,CHAR_VALUE);
       FileWriteInteger(file,71,CHAR_VALUE);
       FileWriteInteger(file,3,CHAR_VALUE);
@@ -53,6 +55,7 @@ public:
       FileWriteArray(file,unused,0,13);
       FileFlush(file);
       tmpPosition=FileTell(file);
+      logger.debug("Header written, position:"+(string)tmpPosition);
      }
 
    //+------------------------------------------------------------------+
@@ -64,7 +67,8 @@ public:
       tmpPosition=FileTell(file);
       FileFlush(file);
       lastTime=m_bar.time;
-      //Print("T:",m_bar.time," O:",m_bar.open," H:",m_bar.high," L:",m_bar.low," C:",m_bar.close," V:",m_bar.tick_volume);
+      logger.debug("Bar concrete written, position:"+(string)tmpPosition+", lastTime: "+(string)lastTime+", t["+(string)m_bar.time+"],o["+(string)m_bar.open+"],h["+(string)m_bar.high+"],l["+(string)m_bar.low+"],c["+(string)m_bar.close+"]");
+      
      }
 
    //+------------------------------------------------------------------+
@@ -76,7 +80,7 @@ public:
       FileWriteStruct(file,m_bar);
       FileFlush(file);
       lastTime=m_bar.time;
-      //Print("T:",m_bar.time," O:",m_bar.open," H:",m_bar.high," L:",m_bar.low," C:",m_bar.close," V:",m_bar.tick_volume);
+      logger.debug("Bar written, position:"+(string)tmpPosition+", lastTime: "+(string)lastTime+", t["+(string)m_bar.time+"],o["+(string)m_bar.open+"],h["+(string)m_bar.high+"],l["+(string)m_bar.low+"],c["+(string)m_bar.close+"]");
      }
 
   };

@@ -13,6 +13,7 @@
 #include <Files/FileTxt.mqh>
 #include "BasketWriter.mqh"
 #include "Config.mqh"
+#include "Logger.mqh"
 
 #define CFG_FOLDER       "SimpleBasket"
 //+------------------------------------------------------------------+
@@ -34,13 +35,13 @@ private:
    bool              firstTime;
    BasketWriter     *writer;
    Config            config;
-
+   Logger            logger;
    //--- Gets suffix of pair in gactual graph
    string            getPairSuffix();
    //--- Count weights for all pairs
    void              countWeight();
    //--- Count bar values for concrete shift
-   MqlRates          countBar(MqlRates &m_bar,int shift);
+   MqlRates          countBar(int shift);
    //--- Pairs are set based on basket size
    void              setPairs(int m_basketSize);
    //--- Pairs are set based on list of pairs "EURUSD,GBPJPY" 
@@ -95,27 +96,22 @@ bool              Basket::updateLastBar()
       countWeight();
 
       writer.openFile(basketName,timeframe);
-      Print("SBasket Open file");
       writer.writeHeader(basketName,timeframe);
-      Print("SBasket Header done");
       writer.resetCounter();
-      Print("SBasket Counter reset");
-
       writeCurrentBars();
-      Print("SBasket Write bars");
       firstTime=false;
      }
    else
      {
-      MqlRates          bar;
       datetime newTime=iTime(pairs[0],timeframe,0);
       datetime oldTime=writer.getLastBarTime();
+      logger.debug("New time="+newTime);
       if(oldTime!=newTime)
         {
          // new bar
-         writer.writeBar(countBar(bar,1));
+         writer.writeBar(countBar(1));
         }
-      writer.writeTempBar(countBar(bar,0));
+      writer.writeTempBar(countBar(0));
      }
 
    if(writer.counterValue()>maxBars)
@@ -206,6 +202,7 @@ bool Basket::CreateInit(BasketWriter *m_writer,string m_pairsOrSize,double m_lot
 bool  Basket::Create(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSize=0.01,int m_initBars=1000,int m_maxBars=1100,string m_basketName="Basket",int m_timeframe=240)
   {
    this.writer=m_writer;
+   this.writer.setLogger(GetPointer(logger));
    this.lotSize    = m_lotSize;
    this.maxBars    = m_maxBars;
    this.initBars   = m_initBars;
@@ -246,12 +243,12 @@ bool  Basket::Create(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSiz
 //+------------------------------------------------------------------+
 void              Basket::writeCurrentBars()
   {
-   MqlRates          bar;
+   logger.debug("Writing current bars");
    for(int i=initBars;i>0;i--)
      {
-      writer.writeBar(countBar(bar,i));
+      writer.writeBar(countBar(i));
      }
-   writer.writeTempBar(countBar(bar,0));
+   writer.writeTempBar(countBar(0));
   }
 //+------------------------------------------------------------------+
 //| Pairs are set based on list of pairs "EURUSD,GBPJPY"             |
@@ -437,8 +434,9 @@ double Basket::getInvertNumber(double close)
 //+------------------------------------------------------------------+
 //| Count bar values for concrete shift                              |
 //+------------------------------------------------------------------+
-MqlRates          Basket::countBar(MqlRates &m_bar,int shift)
+MqlRates          Basket::countBar(int shift)
   {
+   MqlRates          m_bar;
    m_bar.close=0;
    m_bar.open=0;
    m_bar.high=0;
@@ -454,17 +452,20 @@ MqlRates          Basket::countBar(MqlRates &m_bar,int shift)
          m_bar.high   = m_bar.high   + weights[j] * (invertNumber[j] - iLow(pairs[j],timeframe,shift));
          m_bar.low    = m_bar.low    + weights[j] * (invertNumber[j] - iHigh(pairs[j],timeframe,shift));
          m_bar.open   = m_bar.open   + weights[j] * (invertNumber[j] - iOpen(pairs[j],timeframe,shift));
+         logger.debug("IBar counted: o["+(string)m_bar.open+"],w["+(string)weights[j]+"],oo["+(string)iOpen(pairs[j],timeframe,shift)+"]");
         }
       else
         {
-         m_bar.close=m_bar.close+weights[j]*iClose(pairs[j],timeframe,shift);
-         m_bar.high   = m_bar.high   + weights[j] * iHigh(pairs[j],timeframe,shift);
-         m_bar.low    = m_bar.low    + weights[j] * iLow(pairs[j],timeframe,shift);
-         m_bar.open   = m_bar.open   + weights[j] * iOpen(pairs[j],timeframe,shift);
+         m_bar.close  += weights[j] * iClose(pairs[j],timeframe,shift);
+         m_bar.high   += weights[j] * iHigh(pairs[j],timeframe,shift);
+         m_bar.low    += weights[j] * iLow(pairs[j],timeframe,shift);
+         m_bar.open   += weights[j] * iOpen(pairs[j],timeframe,shift);
+         logger.debug("Bar counted: oo["+(string)iOpen(pairs[j],timeframe,shift)+"],hh["+(string)iHigh(pairs[j],timeframe,shift)+"],ll["+(string)iLow(pairs[j],timeframe,shift)+"],cc["+(string)iClose(pairs[j],timeframe,shift)+"]"+iTime(pairs[0],timeframe,shift)+", err:"+ GetLastError());
         }
-      m_bar.tick_volume=m_bar.tick_volume+(int)(weights[j]*iVolume(pairs[j],timeframe,shift)*0.001);
+      m_bar.tick_volume=m_bar.tick_volume+(long)(weights[j]*iVolume(pairs[j],timeframe,shift)*0.001);
      }
    m_bar.time=iTime(pairs[0],timeframe,shift);
+   logger.debug("Bar counted: t["+(string)m_bar.time+"],o["+(string)m_bar.open+"],h["+(string)m_bar.high+"],l["+(string)m_bar.low+"],c["+(string)m_bar.close+"]");
    return (m_bar);
   }
 //+------------------------------------------------------------------+
@@ -485,6 +486,7 @@ void Basket::countWeight()
      {
       ResetLastError();
       weights[i]=MarketInfo(pairs[i],MODE_TICKVALUE)*lotSize/MarketInfo(pairs[i],MODE_TICKSIZE);
+      logger.debug("Weight for pair "+pairs[i]+" counted to "+(string)weights[i]);
      }
   }
 

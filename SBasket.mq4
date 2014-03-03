@@ -15,7 +15,7 @@
 #property strict
 #property indicator_chart_window
 
-#define TIMER_INTERVAL   2
+#define TIMER_INTERVAL   4
 
 #include "Basket.mqh"
 #include "HstBasketWriter.mqh"
