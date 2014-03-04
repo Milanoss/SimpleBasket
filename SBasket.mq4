@@ -11,7 +11,7 @@
 #property description "3. If you haven't history dowloaded wait until 'Loading history data ...' message disappear"
 #property description "7. Save graph as template"
 #property description "8. Enjoy... ;)"
-#property version   "1.02"
+#property version   "1.1"
 #property strict
 #property indicator_chart_window
 

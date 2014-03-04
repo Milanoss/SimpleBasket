@@ -21,6 +21,11 @@ public:
      {
       if(GlobalVariableCheck("debug"))
         {
+         if(file<=0)
+           {
+            Print("Logger created");
+            file=FileOpen("SBasket.log",FILE_WRITE|FILE_SHARE_WRITE|FILE_SHARE_READ);
+           }
          FileWriteString(file,message+"\r\n");
          FileFlush(file);
         }
@@ -31,14 +36,13 @@ public:
 //+------------------------------------------------------------------+
 Logger::Logger()
   {
-   Print("Logger created");
-   file=FileOpen("SBasket.log",FILE_WRITE|FILE_SHARE_WRITE|FILE_SHARE_READ);
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
 Logger::~Logger()
   {
-   FileClose(file);
+   if(file>0)
+      FileClose(file);
   }
 //+------------------------------------------------------------------+

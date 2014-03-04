@@ -105,7 +105,6 @@ bool              Basket::updateLastBar()
      {
       datetime newTime=iTime(pairs[0],timeframe,0);
       datetime oldTime=writer.getLastBarTime();
-      logger.debug("New time="+newTime);
       if(oldTime!=newTime)
         {
          // new bar
@@ -132,7 +131,6 @@ string Basket::getPairs()
    for(int i=1;i<ArraySize(pairs);i++)
      {
       result=StringConcatenate(result,",",((invertNumber[i]!=0)?"i":"")+pairs[i]);
-      //Print(invertNumber[i]);
      }
    return (result);
   }
@@ -441,7 +439,8 @@ MqlRates          Basket::countBar(int shift)
    m_bar.open=0;
    m_bar.high=0;
    m_bar.low=0;
-   m_bar.tick_volume=0;
+   m_bar.tick_volume=1;
+   m_bar.real_volume=1;
    m_bar.spread=0;
 
    for(int j=0;j<ArraySize(pairs);j++)
@@ -452,7 +451,7 @@ MqlRates          Basket::countBar(int shift)
          m_bar.high   = m_bar.high   + weights[j] * (invertNumber[j] - iLow(pairs[j],timeframe,shift));
          m_bar.low    = m_bar.low    + weights[j] * (invertNumber[j] - iHigh(pairs[j],timeframe,shift));
          m_bar.open   = m_bar.open   + weights[j] * (invertNumber[j] - iOpen(pairs[j],timeframe,shift));
-         logger.debug("IBar counted: o["+(string)m_bar.open+"],w["+(string)weights[j]+"],oo["+(string)iOpen(pairs[j],timeframe,shift)+"]");
+         //logger.debug("IBar counted: o["+(string)m_bar.open+"],w["+(string)weights[j]+"],oo["+(string)iOpen(pairs[j],timeframe,shift)+"]");
         }
       else
         {
@@ -460,12 +459,14 @@ MqlRates          Basket::countBar(int shift)
          m_bar.high   += weights[j] * iHigh(pairs[j],timeframe,shift);
          m_bar.low    += weights[j] * iLow(pairs[j],timeframe,shift);
          m_bar.open   += weights[j] * iOpen(pairs[j],timeframe,shift);
-         logger.debug("Bar counted: oo["+(string)iOpen(pairs[j],timeframe,shift)+"],hh["+(string)iHigh(pairs[j],timeframe,shift)+"],ll["+(string)iLow(pairs[j],timeframe,shift)+"],cc["+(string)iClose(pairs[j],timeframe,shift)+"]"+iTime(pairs[0],timeframe,shift)+", err:"+ GetLastError());
+         //logger.debug("Bar counted: oo["+(string)iOpen(pairs[j],timeframe,shift)+"],hh["+(string)iHigh(pairs[j],timeframe,shift)+"],ll["+(string)iLow(pairs[j],timeframe,shift)+"],cc["+(string)iClose(pairs[j],timeframe,shift)+"]"+iTime(pairs[0],timeframe,shift)+", err:"+GetLastError());
         }
       m_bar.tick_volume=m_bar.tick_volume+(long)(weights[j]*iVolume(pairs[j],timeframe,shift)*0.001);
      }
    m_bar.time=iTime(pairs[0],timeframe,shift);
+
    logger.debug("Bar counted: t["+(string)m_bar.time+"],o["+(string)m_bar.open+"],h["+(string)m_bar.high+"],l["+(string)m_bar.low+"],c["+(string)m_bar.close+"]");
+
    return (m_bar);
   }
 //+------------------------------------------------------------------+

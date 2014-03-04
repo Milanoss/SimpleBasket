@@ -55,7 +55,7 @@ public:
       FileWriteArray(file,unused,0,13);
       FileFlush(file);
       tmpPosition=FileTell(file);
-      logger.debug("Header written, position:"+(string)tmpPosition);
+      //logger.debug("Header written, position:"+(string)tmpPosition);
      }
 
    //+------------------------------------------------------------------+
@@ -63,12 +63,12 @@ public:
    //+------------------------------------------------------------------+
    void      writeBarConcrete(MqlRates &m_bar)
      {
+      FileSeek(file,tmpPosition,SEEK_SET);
       FileWriteStruct(file,m_bar);
       tmpPosition=FileTell(file);
-      FileFlush(file);
       lastTime=m_bar.time;
-      logger.debug("Bar concrete written, position:"+(string)tmpPosition+", lastTime: "+(string)lastTime+", t["+(string)m_bar.time+"],o["+(string)m_bar.open+"],h["+(string)m_bar.high+"],l["+(string)m_bar.low+"],c["+(string)m_bar.close+"]");
       
+      logger.debug("Bar concrete written, new position:"+(string)tmpPosition+", lastTime: "+(string)lastTime+", t["+(string)m_bar.time+"],o["+(string)m_bar.open+"],h["+(string)m_bar.high+"],l["+(string)m_bar.low+"],c["+(string)m_bar.close+"]");
      }
 
    //+------------------------------------------------------------------+
@@ -80,7 +80,7 @@ public:
       FileWriteStruct(file,m_bar);
       FileFlush(file);
       lastTime=m_bar.time;
-      logger.debug("Bar written, position:"+(string)tmpPosition+", lastTime: "+(string)lastTime+", t["+(string)m_bar.time+"],o["+(string)m_bar.open+"],h["+(string)m_bar.high+"],l["+(string)m_bar.low+"],c["+(string)m_bar.close+"]");
+      //logger.debug("Bar "+s+" written, to position:"+(string)tmpPosition+", new position:"+t+", lastTime: "+(string)lastTime+", t["+(string)m_bar.time+"],o["+(string)m_bar.open+"],h["+(string)m_bar.high+"],l["+(string)m_bar.low+"],c["+(string)m_bar.close+"]");
      }
 
   };
