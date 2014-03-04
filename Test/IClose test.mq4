@@ -15,6 +15,10 @@ int OnInit()
   {
 //--- indicator buffers mapping
    EventSetTimer(4);
+   
+   int h =iCustom(null,0,"SBasket","#BSK#",1);
+   Print(h);
+   
 //---
    return(INIT_SUCCEEDED);
   }

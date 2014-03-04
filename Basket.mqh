@@ -13,7 +13,7 @@
 #include <Files/FileTxt.mqh>
 #include "BasketWriter.mqh"
 #include "Config.mqh"
-#include "Logger.mqh"
+//#include "Logger.mqh"
 
 #define CFG_FOLDER       "SimpleBasket"
 //+------------------------------------------------------------------+
@@ -35,11 +35,11 @@ private:
    bool              firstTime;
    BasketWriter     *writer;
    Config            config;
-   Logger            logger;
+   //Logger            logger;
    //--- Gets suffix of pair in gactual graph
    string            getPairSuffix();
    //--- Count weights for all pairs
-   void              countWeight();
+   bool              countWeight();
    //--- Count bar values for concrete shift
    MqlRates          countBar(int shift);
    //--- Pairs are set based on basket size
@@ -67,7 +67,7 @@ public:
    //--- Init basket - open file, write header into file and write and write all possible bars from all pairs  
    bool              CreateInit(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSize=0.01,int m_initBars=1000,int m_maxBars=1100,string m_basketName="Basket",int m_timeframe=240);
    //---
-   bool              Create(BasketWriter *m_writer);
+   bool              Create(BasketWriter *m_writer,int period,string symbol);
    //--- Called by timer to update last bar of graph. If new bar is added it is written and also new temporary bar is written
    bool              updateLastBar();
    //--- Gets pairs as string "GBPJPY,EURUSD" 
@@ -89,12 +89,14 @@ bool              Basket::updateLastBar()
   {
    if(firstTime)
      {
+      if(!countWeight())
+        {
+         return false;
+        }
       if(!isHistoryLoaded())
         {
          return false;
         }
-      countWeight();
-
       writer.openFile(basketName,timeframe);
       writer.writeHeader(basketName,timeframe);
       writer.resetCounter();
@@ -104,9 +106,10 @@ bool              Basket::updateLastBar()
    else
      {
       datetime newTime=iTime(pairs[0],timeframe,0);
-      datetime oldTime=writer.getLastBarTime();
-      logger.debug("New time="+newTime);
-      if(oldTime!=newTime)
+      datetime oldTime=writer.getLastBarTime();//+timeframe+4;
+      Print("o:",oldTime," n",newTime);
+      //logger.debug("New time="+(string)newTime);
+      if(oldTime<newTime)
         {
          // new bar
          writer.writeBar(countBar(1));
@@ -160,13 +163,11 @@ bool Basket::isHistoryLoaded()
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-bool Basket::Create(BasketWriter *m_writer)
+bool Basket::Create(BasketWriter *m_writer,int m_period,string m_symbol)
   {
    string params[6];
-   if(!config.LoadConfig(CFG_FOLDER,Symbol()+"-"+IntegerToString(Period()),params))
+   if(!config.LoadConfig(CFG_FOLDER,m_symbol+"-"+IntegerToString(m_period),params))
      {
-      Alert("Configuration for symbol ",Symbol(),"-",IntegerToString(Period())," does not exist!");
-      Print("Create offline chart againt by SBasketCreator indicator!");
       return false;
      }
    if(!Create(m_writer,params[0],StringToDouble(params[1]),(int)StringToInteger(params[2]),(int)StringToInteger(params[3]),params[4],(int)StringToInteger(params[5])))
@@ -202,7 +203,7 @@ bool Basket::CreateInit(BasketWriter *m_writer,string m_pairsOrSize,double m_lot
 bool  Basket::Create(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSize=0.01,int m_initBars=1000,int m_maxBars=1100,string m_basketName="Basket",int m_timeframe=240)
   {
    this.writer=m_writer;
-   this.writer.setLogger(GetPointer(logger));
+   //this.writer.setLogger(GetPointer(logger));
    this.lotSize    = m_lotSize;
    this.maxBars    = m_maxBars;
    this.initBars   = m_initBars;
@@ -243,7 +244,7 @@ bool  Basket::Create(BasketWriter *m_writer,string m_pairsOrSize,double m_lotSiz
 //+------------------------------------------------------------------+
 void              Basket::writeCurrentBars()
   {
-   logger.debug("Writing current bars");
+   //logger.debug("Writing current bars");
    for(int i=initBars;i>0;i--)
      {
       writer.writeBar(countBar(i));
@@ -452,20 +453,26 @@ MqlRates          Basket::countBar(int shift)
          m_bar.high   = m_bar.high   + weights[j] * (invertNumber[j] - iLow(pairs[j],timeframe,shift));
          m_bar.low    = m_bar.low    + weights[j] * (invertNumber[j] - iHigh(pairs[j],timeframe,shift));
          m_bar.open   = m_bar.open   + weights[j] * (invertNumber[j] - iOpen(pairs[j],timeframe,shift));
-         logger.debug("IBar counted: o["+(string)m_bar.open+"],w["+(string)weights[j]+"],oo["+(string)iOpen(pairs[j],timeframe,shift)+"]");
+
+         //logger.debug("IBar counted: o["+(string)m_bar.open+"],w["+(string)weights[j]+"],oo["+(string)iOpen(pairs[j],timeframe,shift)+"]");
         }
       else
         {
-         m_bar.close  += weights[j] * iClose(pairs[j],timeframe,shift);
-         m_bar.high   += weights[j] * iHigh(pairs[j],timeframe,shift);
-         m_bar.low    += weights[j] * iLow(pairs[j],timeframe,shift);
-         m_bar.open   += weights[j] * iOpen(pairs[j],timeframe,shift);
-         logger.debug("Bar counted: oo["+(string)iOpen(pairs[j],timeframe,shift)+"],hh["+(string)iHigh(pairs[j],timeframe,shift)+"],ll["+(string)iLow(pairs[j],timeframe,shift)+"],cc["+(string)iClose(pairs[j],timeframe,shift)+"]"+iTime(pairs[0],timeframe,shift)+", err:"+ GetLastError());
+         m_bar.close  += NormalizeDouble(weights[j] * iClose(pairs[j],timeframe,shift),2);
+         m_bar.high   += NormalizeDouble(weights[j] * iHigh(pairs[j],timeframe,shift),2);
+         m_bar.low    += NormalizeDouble(weights[j] * iLow(pairs[j],timeframe,shift),2);
+         m_bar.open   += NormalizeDouble(weights[j] * iOpen(pairs[j],timeframe,shift),2);
+
+         //logger.debug("Bar counted: oo["+(string)iOpen(pairs[j],timeframe,shift)+"],hh["+(string)iHigh(pairs[j],timeframe,shift)+"],ll["+(string)iLow(pairs[j],timeframe,shift)+"],cc["+(string)iClose(pairs[j],timeframe,shift)+"]"+(string)iTime(pairs[0],timeframe,shift)+", err:"+(string)GetLastError());
         }
-      m_bar.tick_volume=m_bar.tick_volume+(long)(weights[j]*iVolume(pairs[j],timeframe,shift)*0.001);
+      m_bar.tick_volume=m_bar.tick_volume+(long)(weights[j]*iVolume(pairs[j],timeframe,shift));
+
+      //logger.debug("Bar counted: v["+(string)iVolume(pairs[j],timeframe,shift)+"]"+(string)(weights[j]*iVolume(pairs[j],timeframe,shift)));
      }
    m_bar.time=iTime(pairs[0],timeframe,shift);
-   logger.debug("Bar counted: t["+(string)m_bar.time+"],o["+(string)m_bar.open+"],h["+(string)m_bar.high+"],l["+(string)m_bar.low+"],c["+(string)m_bar.close+"]");
+
+   //logger.debug("Bar counted: t["+(string)m_bar.time+"],o["+(string)m_bar.open+"],h["+(string)m_bar.high+"],l["+(string)m_bar.low+"],c["+(string)m_bar.close+"],v["+(string)m_bar.tick_volume+"]");
+
    return (m_bar);
   }
 //+------------------------------------------------------------------+
@@ -480,14 +487,20 @@ string Basket::getPairSuffix()
 //+------------------------------------------------------------------+
 //| Count weights for all pairs                           |
 //+------------------------------------------------------------------+
-void Basket::countWeight()
+bool Basket::countWeight()
   {
    for(int i=0;i<ArraySize(weights);i++)
      {
-      ResetLastError();
-      weights[i]=MarketInfo(pairs[i],MODE_TICKVALUE)*lotSize/MarketInfo(pairs[i],MODE_TICKSIZE);
-      logger.debug("Weight for pair "+pairs[i]+" counted to "+(string)weights[i]);
+      double tv = MarketInfo(pairs[i],MODE_TICKVALUE);
+      double ts = MarketInfo(pairs[i],MODE_TICKSIZE);
+      if(tv==0 || ts==0)
+        {
+         return false;
+        }
+      weights[i]=tv*lotSize/ts;
+      //logger.debug("Weight for pair "+pairs[i]+" counted to "+(string)weights[i]);
      }
+   return true;
   }
 
 //+------------------------------------------------------------------+

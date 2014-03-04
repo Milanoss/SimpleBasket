@@ -7,8 +7,7 @@
 #property link      "http://www.mql5.com"
 #property version   "1.00"
 #property strict
-
-#include "Logger.mqh"
+//#include "Logger.mqh"
 
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -21,7 +20,7 @@ protected:
    int               file;
    ulong             tmpPosition;
    int               counter;
-   Logger           *logger;
+   //Logger           *logger;
 public:
                      BasketWriter(){}
                     ~BasketWriter(){}
@@ -88,10 +87,10 @@ public:
       counter=0;
      }
 
-   void setLogger(Logger *m_logger)
-     {
-      this.logger=m_logger;
-     }
+   //void setLogger(Logger *m_logger)
+   //  {
+   //   this.logger=m_logger;
+   //  }
 
 protected:
    //+------------------------------------------------------------------+

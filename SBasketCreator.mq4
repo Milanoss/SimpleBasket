@@ -24,14 +24,13 @@
 // Do not touch rest of code please. If you need change, contact developers of these scripts please
 
 // Configurable values
-extern string basketName    = "Basket";
-extern int    basketInitBars= 1000;
-extern int    basketMaxBars = 1100;
-extern string ________="Basket size '14' or list of symbols 'EURUSD,GBPJPY'";
-extern string _________="For EURUSD pair inversion use 'iEURUSD,GBPJPY'";
-extern string basketSizeOrSymbols="14";
-extern int    timeFrame     = 240;
-extern double lotSize       = 0.01;
+extern string basketName="#BSK#";   // Basket name
+extern int    timeFrame     = 15;   // Basket timeframe
+extern string _="14 - EURUSD,GBPJPY - iEURUSD,GBPJPY"; // --- Possible values
+extern string basketSizeOrSymbols="14";// Basket size or list of symbols
+extern int    basketInitBars= 1000; // Initial bars count
+extern int    basketMaxBars = 1100; // Max bars count
+extern double lotSize       = 0.01; // Lot size used
 
 Basket   basket;
 bool initDone=false;
