@@ -11,46 +11,45 @@
 #property description "3. If you haven't history dowloaded wait until 'Loading history data ...' message disappear"
 #property description "7. Save graph as template"
 #property description "8. Enjoy... ;)"
-#property version   "1.1"
+#property version   "1.02"
 #property strict
 #property indicator_chart_window
+
+#define TIMER_INTERVAL   4
 
 #include "Basket.mqh"
 #include "HstBasketWriter.mqh"
 
-// Configurable values
-extern string basketName="#BSK#";   // Basket name
-extern int    timeFrame     = 15;   // Basket timeframe
-extern string _="14 - EURUSD,GBPJPY - iEURUSD,GBPJPY"; // --- Possible values
-extern string basketSizeOrSymbols="14";// Basket size or list of symbols
-extern int    basketInitBars= 1000; // Initial bars count
-extern int    basketMaxBars = 1100; // Max bars count
-extern double lotSize       = 0.01; // Lot size used
-
 Basket   basket;
 //+------------------------------------------------------------------+
-//| Create basket                                                    |
+//| Create basket and timer                                          |
 //+------------------------------------------------------------------+
 int OnInit()
   {
-// try to load config from file
-   if(!basket.Create(new HstBasketWriter(),timeFrame,basketName))
-     {
-      if(!basket.CreateInit(new HstBasketWriter(),basketSizeOrSymbols,lotSize,basketInitBars,basketMaxBars,basketName,timeFrame))
-         return INIT_FAILED;
-     }
+   IndicatorShortName("SBasket");
+   if(!basket.Create(new HstBasketWriter()))
+      return INIT_FAILED;
+
+   EventSetTimer(TIMER_INTERVAL);
 
    return INIT_SUCCEEDED;
   }
 //+------------------------------------------------------------------+
-//| Destroy basket                                                   |
+//| Kill timer and destroy basket                                    |
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
   {
-
+   EventKillTimer();
   }
 //+------------------------------------------------------------------+
-//| Nothing to count, it is event for new tick                       |
+//| It is called by timer, basket is updated                         |
+//+------------------------------------------------------------------+
+void OnTimer()
+  {
+   basket.updateLastBar();
+  }
+//+------------------------------------------------------------------+
+//| Nothing to count, it is event for new tick                      |
 //+------------------------------------------------------------------+
 int OnCalculate(const int rates_total,
                 const int prev_calculated,
@@ -63,7 +62,6 @@ int OnCalculate(const int rates_total,
                 const long &volume[],
                 const int &spread[])
   {
-   basket.updateLastBar();
    return(rates_total);
   }
 
