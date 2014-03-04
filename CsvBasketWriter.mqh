@@ -56,7 +56,7 @@ public:
          else
             this.coefficient=1;
         }
-
+      FileSeek(file,tmpPosition,SEEK_SET);
       FileWrite(file,TimeToStr(m_bar.time,TIME_DATE),TimeToStr(m_bar.time,TIME_MINUTES),DoubleToStr(m_bar.open*coefficient,digits)
                 ,DoubleToStr(m_bar.high*coefficient,digits),DoubleToStr(m_bar.low*coefficient,digits),DoubleToStr(m_bar.close*coefficient,digits)
                 ,DoubleToStr(m_bar.tick_volume,0));
